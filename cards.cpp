@@ -175,16 +175,14 @@ public:
 	}
 };
 
-// void sortByVal(vector<Card> &h)
-// {
-	// for(int i =0; i < h.end()-1; i++)
-		// for(int j=0; j<h.end()-1; j++)
-			// if(h[j].getValue() < h[j+i].getValue())
-				
-// }
 bool compare(Card a, Card b)
 {
-	return (a.getValue() > b.getValue());
+	int tempa = a.getValue();
+	int tempb = b.getValue();
+	if(tempa == 0) tempa = 14;
+	if(tempb == 0) tempb = 14;
+	
+	return (tempa > tempb);
 }
 class Hand{
 	vector<Card> handList;
