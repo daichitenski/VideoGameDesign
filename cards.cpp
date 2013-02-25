@@ -4,6 +4,7 @@
 #include <deque>
 #include <time.h>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -80,19 +81,29 @@ public:
 class Card{
 	int value;
 	bool faceUp;
+	bool special;
 
 public:
 	Card(){
 		value = 0;
+		special = false;
 		faceUp = false;
 	}
 	Card(int newVal, bool facing){
 		value = newVal;
+		if(newVal == 2 || newVal ==10)
+			special = true;
+		else
+			special = false;
 		//image = newImage;
 		faceUp = facing;
 	}
 	int getValue(){
 		return value;
+	}
+	bool isSpecial()
+	{
+		return special;
 	}
 	void flipCard(){
 		faceUp = !faceUp;
@@ -102,6 +113,7 @@ public:
 	}
 	void outputCard(){
 		cout<<"Value: "<<value;
+		cout<<"Special: " << special;
 		if(faceUp)
 			cout<<"  Face Up"<<endl;
 		else
@@ -163,6 +175,17 @@ public:
 	}
 };
 
+// void sortByVal(vector<Card> &h)
+// {
+	// for(int i =0; i < h.end()-1; i++)
+		// for(int j=0; j<h.end()-1; j++)
+			// if(h[j].getValue() < h[j+i].getValue())
+				
+// }
+bool compare(Card a, Card b)
+{
+	return (a.getValue() > b.getValue());
+}
 class Hand{
 	vector<Card> handList;
 	int numCards;
@@ -179,6 +202,7 @@ public:
 		c.flipCard();
 		handList.insert(handList.end(), c);
 		numCards++;
+		sort(handList.begin(), handList.end(), compare);
 	}
 	void insert(vector<Card> inCards){
 		handList.insert(handList.end(),inCards.begin(),inCards.end());
