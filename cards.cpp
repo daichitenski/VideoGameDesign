@@ -113,7 +113,7 @@ public:
 	}
 	void outputCard(){
 		cout<<"Value: "<<value;
-		cout<<"Special: " << special;
+		cout<<" Special: " << special;
 		if(faceUp)
 			cout<<"  Face Up"<<endl;
 		else
@@ -224,9 +224,54 @@ public:
 			c->draw(screen, (105*i)+10, 476);
 		}
 	}
-	
+	bool isEmpty(){
+		return handList.empty();
+	}
 };
 
+class player{
+	Hand h;
+	int maxHand;
+	//board hand
+		
+public:
+	player(Deck &d, int deckNum=1)
+	{
+		switch (deckNum) //Determine the number of cards to deal
+		{
+		case 1:
+		case 2: 
+			maxHand = 5;
+			for(int i=0;i<maxHand;i++){
+				h.drawFromDeck(&d);
+			}
+			break;
+		case 3:
+		case 4:
+			maxHand = 7;
+			for(int i=0;i<maxHand;i++){
+				h.drawFromDeck(&d);
+			}
+			break;
+		case 5:
+		case 6:
+			maxHand = 13;
+			for(int i=0;i<maxHand;i++){
+				h.drawFromDeck(&d);
+			}
+			break;
+		default:
+			maxHand = 6;
+			for(int i=0;i<maxHand;i++){
+				h.drawFromDeck(&d);
+			}
+			break;
+		}
+		cout<<endl;
+		h.outputHand();
+	}
+
+};
 
 int main(int argc, char* argv[]){
 	SDL_Event event;
@@ -244,18 +289,20 @@ int main(int argc, char* argv[]){
 	
 	Deck d = Deck(1);
 	d.outputDeck();
-	Hand h = Hand();
 
-	for(int i=0;i<5;i++){
-		h.drawFromDeck(&d);
-	}
-	cout<<endl;
-	h.outputHand();
+	//Player 1
+		Hand h = Hand();
+		//for(int i=0;i<5;i++){
+		//	h.drawFromDeck(&d);
+		//}
+		//cout<<endl;
+		//h.outputHand();
+	player p1(d);
 	
 	while(!done){
 		bg.draw();
 		d.draw(&cardImages,screen);
-		h.draw(&cardImages,screen);	
+		h.draw(&cardImages,screen);	//player class
 		while(SDL_PollEvent(&event)){
 			if(event.type == SDL_QUIT){
 				done = true;
