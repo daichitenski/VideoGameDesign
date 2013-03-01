@@ -161,7 +161,7 @@ public:
 		}
 	}
 	void draw(CardImage *c, SDL_Surface *screen){
-		c->selectCard(12);
+		c->selectCard(13);
 		c->draw(screen,401,165);
 		c->selectCard(0);
 		c->draw(screen,308,165);
@@ -187,12 +187,18 @@ bool compare(Card a, Card b)
 class Hand{
 	vector<Card> handList;
 	int numCards;
+	SDL_Surface *handSurface;
+	SDL_Rect handSpace;
 	static const int HAND_HEIGHT = 140;
-	static const int HAND_WIDTH = 120;
+	static const int HAND_WIDTH = 5000;
+	static const int VIEW_WINDOW_WIDTH = 700;
+	static const int VIEW_WINDOW_STEP = 45;
 
 public:
 	Hand(){
 		numCards=0;
+		handSurface = SDL_CreateRGBSurface(SDL_HWSURFACE,HAND_WIDTH,HAND_HEIGHT,32,0,0,0,0);
+		handSpace.x = 0; handSpace.y = 475; handSpace.h = HAND_HEIGHT; handSpace.w = VIEW_WINDOW_WIDTH;
 	}
 
 	void drawFromDeck(Deck *d){
@@ -200,15 +206,17 @@ public:
 		c.flipCard();
 		handList.insert(handList.end(), c);
 		numCards++;
-		sort(handList.begin(), handList.end(), compare);
+		
 	}
 	void insert(vector<Card> inCards){
 		handList.insert(handList.end(),inCards.begin(),inCards.end());
 		numCards += inCards.size();
+		sort(handList.begin(), handList.end(), compare);
 	}
 	void insert(Card newCard){
 		handList.insert(handList.end(), newCard);
 		numCards++;
+		sort(handList.begin(), handList.end(), compare);
 	}
 	void outputHand(){
 		cout<<"Outputting Hand with "<<numCards<<" cards:"<<endl;
@@ -218,14 +226,57 @@ public:
 		cout<<endl;
 	}
 
-	void draw(CardImage *c, SDL_Surface *screen){
+	void draw(CardImage *c, SDL_Surface *screen, int viewMin){
+		// for(int i=0;i<numCards;i++){
+		// 	c->selectCard(handList[i].getValue());
+		// 	c->draw(screen, (105*i)+10, 476);
+		// }
+		SDL_Rect viewWindow;
 		for(int i=0;i<numCards;i++){
 			c->selectCard(handList[i].getValue());
-			c->draw(screen, (105*i)+10, 476);
+			c->draw(handSurface, (105*i)+10, 0);
 		}
+		cout<<"View MIN : "<<viewMin<<"  numcards: "<<numCards<<" numCards*110 = "<<(numCards*110)<<endl;
+		//THERE IS A BUG HERE WITH LESS THAN 6 CARDS
+		if(viewMin >= 0 && viewMin < ((numCards*110) - VIEW_WINDOW_WIDTH)){
+			viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
+			cout<<"In case 1"<<endl;
+		}
+		else if(viewMin >=0 && viewMin < VIEW_WINDOW_WIDTH){
+			viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
+			cout<<"In case 2"<<endl;
+		}
+		else if(viewMin< 0 && viewMin < ((numCards*110) - VIEW_WINDOW_WIDTH)){
+			viewWindow.x = 0; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
+			cout<<"In case 3"<<endl;
+		}
+		else{
+			viewWindow.x = ((numCards*110) - VIEW_WINDOW_WIDTH); viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
+			cout<<"In case 4"<<endl;
+		}
+
+		SDL_BlitSurface(handSurface, &viewWindow, screen, &handSpace);
 	}
 	bool isEmpty(){
 		return handList.empty();
+	}
+	int incrementViewWindow(int prev){
+		int answer = 0;
+		if(numCards*110 < VIEW_WINDOW_WIDTH)
+			answer = prev;
+		else if(prev+VIEW_WINDOW_STEP > ((numCards*110) - VIEW_WINDOW_WIDTH))
+			answer = ((numCards*110) - VIEW_WINDOW_WIDTH);
+		else
+			answer = prev+VIEW_WINDOW_STEP;
+		return answer;
+	}
+	int decrementViewWindow(int prev){
+		int answer = 0;
+		if(prev-VIEW_WINDOW_STEP < 0)
+			answer = 0;
+		else
+			answer = prev-VIEW_WINDOW_STEP;
+		return answer;
 	}
 };
 
@@ -235,7 +286,7 @@ class player{
 	//board hand
 		
 public:
-	player(Deck &d, int deckNum=1)
+	player(Deck *d, int deckNum=1)
 	{
 		switch (deckNum) //Determine the number of cards to deal
 		{
@@ -243,34 +294,45 @@ public:
 		case 2: 
 			maxHand = 5;
 			for(int i=0;i<maxHand;i++){
-				h.drawFromDeck(&d);
+				h.drawFromDeck(d);
 			}
 			break;
 		case 3:
 		case 4:
 			maxHand = 7;
 			for(int i=0;i<maxHand;i++){
-				h.drawFromDeck(&d);
+				h.drawFromDeck(d);
 			}
 			break;
 		case 5:
 		case 6:
 			maxHand = 13;
 			for(int i=0;i<maxHand;i++){
-				h.drawFromDeck(&d);
+				h.drawFromDeck(d);
 			}
 			break;
 		default:
 			maxHand = 6;
 			for(int i=0;i<maxHand;i++){
-				h.drawFromDeck(&d);
+				h.drawFromDeck(d);
 			}
 			break;
 		}
 		cout<<endl;
 		h.outputHand();
 	}
-
+	void drawHand(CardImage *c, SDL_Surface *screen, int winMin){
+		h.draw(c,screen,winMin);	//player class
+	}
+	int decHandWindow(int windowMin){
+		return h.decrementViewWindow(windowMin);
+	}
+	int incHandWindow(int windowMin){
+		return h.incrementViewWindow(windowMin);
+	}
+	void drawFromDeck(Deck *d){
+		h.drawFromDeck(d);
+	}
 };
 
 int main(int argc, char* argv[]){
@@ -291,21 +353,38 @@ int main(int argc, char* argv[]){
 	d.outputDeck();
 
 	//Player 1
-		Hand h = Hand();
+		//Hand h = Hand();
 		//for(int i=0;i<5;i++){
 		//	h.drawFromDeck(&d);
 		//}
 		//cout<<endl;
 		//h.outputHand();
-	player p1(d);
-	
+	player p1(&d);
+	int windowMin = 0;
+
 	while(!done){
 		bg.draw();
 		d.draw(&cardImages,screen);
-		h.draw(&cardImages,screen);	//player class
+		//h.draw(&cardImages,screen,windowMin);	//player class
+		p1.drawHand(&cardImages,screen,windowMin);
 		while(SDL_PollEvent(&event)){
 			if(event.type == SDL_QUIT){
 				done = true;
+			}
+			if(event.type == SDL_MOUSEBUTTONDOWN){
+				cout<<"Click pos: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
+				if(event.button.y > 400 && event.button.x <60 && event.button.y < 475 && event.button.x > 0){
+					windowMin=p1.decHandWindow(windowMin);
+					cout<<"Moving hand window to the left"<<endl;
+				}
+				else if(event.button.y > 400 && event.button.x <800 && event.button.y < 475 && event.button.x > 710){
+					windowMin=p1.incHandWindow(windowMin);
+					cout<<"Moving hand window to the right"<<endl;
+				}
+				else if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH){
+					p1.drawFromDeck(&d);
+					cout<<"Drawing card from deck"<<endl;
+				}
 			}
 		}
 		SDL_Flip(screen);
