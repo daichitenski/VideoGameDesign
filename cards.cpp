@@ -91,7 +91,7 @@ public:
 	}
 	Card(int newVal, bool facing){
 		value = newVal;
-		if(newVal == 2 || newVal ==10)
+		if(newVal == 2-1 || newVal == 10-1)
 			special = true;
 		else
 			special = false;
@@ -139,7 +139,8 @@ public:
 		}
 
 		//Shuffle the deck
-		srand (time(NULL));
+		srand (time(NULL)); 
+		//----- Noticed that the first card drawn is always a King is that just me or something?? -------
 		for(int i=0;i<numCards;i++){
 			if(cardAvailable >1 )
 				idx = rand() % (cardAvailable-1);
@@ -157,14 +158,15 @@ public:
 	void outputDeck(){
 		cout<<"Outputting Deck List"<<endl;
 		for(int i=0;i<numCards;i++){
+			cout << i << " ";
 			deckList[i].outputCard();
 		}
 	}
 	void draw(CardImage *c, SDL_Surface *screen){
 		c->selectCard(13);
 		c->draw(screen,401,165);
-		c->selectCard(0);
-		c->draw(screen,308,165);
+		//c->selectCard(0);
+		//c->draw(screen,308,165);
 	}
 
 	Card drawCard(){
@@ -175,7 +177,7 @@ public:
 	}
 };
 
-bool compare(Card a, Card b)
+bool compare(Card a, Card b) 
 {
 	int tempa = a.getValue();
 	int tempb = b.getValue();
@@ -190,7 +192,7 @@ class Hand{
 	SDL_Surface *handSurface;
 	SDL_Rect handSpace;
 	static const int HAND_HEIGHT = 140;
-	static const int HAND_WIDTH = 5000;
+	static const int HAND_WIDTH = 120;
 	static const int VIEW_WINDOW_WIDTH = 700;
 	static const int VIEW_WINDOW_STEP = 45;
 
@@ -206,7 +208,6 @@ public:
 		c.flipCard();
 		handList.insert(handList.end(), c);
 		numCards++;
-		
 	}
 	void insert(vector<Card> inCards){
 		handList.insert(handList.end(),inCards.begin(),inCards.end());
@@ -237,7 +238,7 @@ public:
 			c->draw(handSurface, (105*i)+10, 0);
 		}
 		cout<<"View MIN : "<<viewMin<<"  numcards: "<<numCards<<" numCards*110 = "<<(numCards*110)<<endl;
-		//THERE IS A BUG HERE WITH LESS THAN 6 CARDS
+		//------ THERE IS A BUG HERE WITH LESS THAN 6 CARDS -------
 		if(viewMin >= 0 && viewMin < ((numCards*110) - VIEW_WINDOW_WIDTH)){
 			viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
 			cout<<"In case 1"<<endl;
@@ -280,47 +281,150 @@ public:
 	}
 };
 
+class Board // The Board Hand Class
+{
+private:
+	vector<Card> boardList;
+	bool topLayer;
+	int numCards;
+public:
+	Board()
+	{
+		numCards =0;
+		topLayer = false;
+	}
+	void drawFromDeck(Deck *d, bool up){
+		Card c = d->drawCard();
+		if(up == true)
+		{
+			topLayer = true;
+			c.flipCard();
+		}
+		boardList.insert(boardList.end(), c);
+		numCards++;
+		if(up == true)
+		{
+			sort(boardList.begin(), boardList.end(), compare);
+		}
+			
+	}
+	void insert(vector<Card> inCards){
+		boardList.insert(boardList.end(),inCards.begin(),inCards.end());
+		numCards += inCards.size();
+	}
+	void insert(Card newCard){
+		boardList.insert(boardList.end(), newCard);
+		numCards++;
+	}
+	void outputHand(){
+		cout<<"Outputting Hand with "<<numCards<<" cards:"<<endl;
+		for(int i=0;i<numCards;i++){
+			boardList[i].outputCard();
+		}
+		cout<<endl;
+	}
+
+	void draw(CardImage *c, SDL_Surface *screen){
+		if(topLayer == true)
+		{
+			for(int i=0;i<numCards;i++){
+				c->selectCard(boardList[i].getValue());
+				c->draw(screen, (105*i)+10, 476-CARDHEIGHT-8);
+			}
+		}
+		else {
+			for(int i=0;i<numCards;i++){
+				c->selectCard(boardList[i].getValue());
+				c->draw(screen, (105*i)+10, 476-3*CARDHEIGHT/2+7);
+			}
+		}
+	}
+	bool isEmpty(){
+		return boardList.empty();
+	}
+};
+
+class Discard{
+	deque<Card> discardPile;
+	int numCards;
+
+public:
+	Discard(Deck *d){
+		numCards = 0;
+		Card c = d->drawCard();
+		c.flipCard();
+		discardPile.push_front(c);
+		numCards++;
+
+	}
+	void outputDiscard(){
+		cout<<"Outputting Discard Pile List"<<endl;
+		for(int i=0;i<numCards;i++){
+			discardPile[i].outputCard();
+		}
+	}
+	void draw(CardImage *c, SDL_Surface *screen){
+		//c->selectCard(12);
+		//c->draw(screen,401,165);
+		Card temp = discardPile.front();
+		c->selectCard(temp.getValue());
+		c->draw(screen,308,165);
+	}
+};
+
 class player{
-	Hand h;
-	int maxHand;
-	//board hand
+	Hand h; //Hidden Play Hand
+	Board upBoard; //Face up Board Hand Section
+	Board db; //Face down Board Hand section
+	int maxHand; //Number per hand based on deck
+	int maxBoard; //Number for board cards based on deck
 		
 public:
-	player(Deck *d, int deckNum=1)
+	player(Deck &d, int deckNum=1) //I still have to take into consideration the number of players playing
 	{
-		switch (deckNum) //Determine the number of cards to deal
+		switch (deckNum) //Determines the number of cards to deal
 		{
 		case 1:
 		case 2: 
 			maxHand = 5;
-			for(int i=0;i<maxHand;i++){
-				h.drawFromDeck(d);
-			}
+			maxBoard = 3;
 			break;
 		case 3:
 		case 4:
 			maxHand = 7;
-			for(int i=0;i<maxHand;i++){
-				h.drawFromDeck(d);
-			}
+			maxBoard = 4;
 			break;
 		case 5:
 		case 6:
 			maxHand = 13;
-			for(int i=0;i<maxHand;i++){
-				h.drawFromDeck(d);
-			}
+			maxBoard = 5;
 			break;
 		default:
 			maxHand = 6;
-			for(int i=0;i<maxHand;i++){
-				h.drawFromDeck(d);
-			}
+			maxBoard = 4;
 			break;
+		}
+		for(int i=0;i<maxHand;i++){ //Generates Hand
+			h.drawFromDeck(&d);
+		}
+		for(int i=0;i<maxBoard;i++){ //Generates Board Cards
+			upBoard.drawFromDeck(&d, true);
+			db.drawFromDeck(&d, false);
 		}
 		cout<<endl;
 		h.outputHand();
+		cout<<endl;
+		upBoard.outputHand();
+		cout<<endl;
+		db.outputHand();
 	}
+	// void draw(CardImage *c, SDL_Surface *screen, CardImage cardImages){
+		// //Displays both the player's hand and board hand.
+		// h.draw(&cardImages,screen);	//player class
+		// db.draw(&cardImages, screen);
+		// upBoard.draw(&cardImages, screen);
+		
+	// }
 	void drawHand(CardImage *c, SDL_Surface *screen, int winMin){
 		h.draw(c,screen,winMin);	//player class
 	}
@@ -351,21 +455,15 @@ int main(int argc, char* argv[]){
 	
 	Deck d = Deck(1);
 	d.outputDeck();
-
-	//Player 1
-		//Hand h = Hand();
-		//for(int i=0;i<5;i++){
-		//	h.drawFromDeck(&d);
-		//}
-		//cout<<endl;
-		//h.outputHand();
-	player p1(&d);
+	player p1(d);
+	Discard discardPile(&d);
 	int windowMin = 0;
-
+	
 	while(!done){
 		bg.draw();
 		d.draw(&cardImages,screen);
-		//h.draw(&cardImages,screen,windowMin);	//player class
+		discardPile.draw(&cardImages, screen);
+//		p1.draw(&cardImages,screen, cardImages);	//player class
 		p1.drawHand(&cardImages,screen,windowMin);
 		while(SDL_PollEvent(&event)){
 			if(event.type == SDL_QUIT){
