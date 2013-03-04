@@ -12,24 +12,30 @@ const int SCREENWIDTH = 800;
 const int SCREENHEIGHT= 600;
 const int CARDHEIGHT = 120;
 const int CARDWIDTH = 90;
+const int CARDHEIGHT_SMALL = 48;
+const int CARDWIDTH_SMALL = 37;
 string SPRITESHEET = "cardfaces.bmp";
 string BG_IMAGE = "background.bmp";
-string BACK_IMAGE = "cardback.bmp";
+string SPRITESHEET_S = "cardfaces_s.bmp";
 
 class CardImage{
 	string fname;
 	SDL_Surface *cardSheet;
 	SDL_Rect src, dest;
+	bool small;
 
 public:
 	const static int OFFSET = 10;
-	CardImage(string name, SDL_Surface *screen){
+	const static int OFFSET_SMALL = 3;
+	CardImage(string name, SDL_Surface *screen, bool smallCards=false){
 		fname=name;
+		small = smallCards;
 		init(screen);
 	}
 
-	CardImage(string name, int val, SDL_Surface *screen){
+	CardImage(string name, int val, SDL_Surface *screen, bool smallCards = false){
 		fname=name;
+		small = smallCards;
 		init(screen);
 		selectCard(val);
 	}
@@ -43,13 +49,24 @@ public:
 		SDL_SetColorKey(cardSheet, SDL_SRCCOLORKEY,colorKey);
 		
 		SDL_FreeSurface(image);
-		
-		src.x = OFFSET; src.y = OFFSET; src.w = CARDWIDTH; src.h = CARDHEIGHT;
-		dest.x =0; dest.y = 0; dest.w = CARDWIDTH; dest.h = CARDHEIGHT;
+		if(!small){
+			src.x = OFFSET; src.y = OFFSET; src.w = CARDWIDTH; src.h = CARDHEIGHT;
+			dest.x =0; dest.y = 0; dest.w = CARDWIDTH; dest.h = CARDHEIGHT;
+		}
+		else{
+			src.x = OFFSET_SMALL; src.y = OFFSET_SMALL; src.w = CARDWIDTH_SMALL; src.h = CARDHEIGHT_SMALL;
+			dest.x =0; dest.y = 0; dest.w = CARDWIDTH_SMALL; dest.h = CARDHEIGHT_SMALL;			
+		}
 	}
 	void selectCard(int val){
-		src.x = OFFSET+(OFFSET*val) + CARDWIDTH*val;
-		src.y = OFFSET;
+		if(!small){
+			src.x = OFFSET+(OFFSET*val) + CARDWIDTH*val;
+			src.y = OFFSET;
+		}
+		else{
+			src.x = OFFSET_SMALL+(OFFSET_SMALL*val) + CARDWIDTH_SMALL*val;
+			src.y = OFFSET_SMALL;
+		}
 	}
 	void draw(SDL_Surface *s, int x, int y){
 		dest.x = x; dest.y = y;
@@ -140,7 +157,6 @@ public:
 
 		//Shuffle the deck
 		srand (time(NULL)); 
-		//----- Noticed that the first card drawn is always a King is that just me or something?? -------
 		for(int i=0;i<numCards;i++){
 			if(cardAvailable >1 )
 				idx = rand() % (cardAvailable-1);
@@ -192,15 +208,16 @@ class Hand{
 	SDL_Surface *handSurface;
 	SDL_Rect handSpace;
 	static const int HAND_HEIGHT = 140;
-	static const int HAND_WIDTH = 120;
-	static const int VIEW_WINDOW_WIDTH = 700;
+	static const int HAND_WIDTH = 600;
+	static const int VIEW_WINDOW_WIDTH = 650;
 	static const int VIEW_WINDOW_STEP = 45;
 
 public:
 	Hand(){
 		numCards=0;
-		handSurface = SDL_CreateRGBSurface(SDL_HWSURFACE,HAND_WIDTH,HAND_HEIGHT,32,0,0,0,0);
-		handSpace.x = 0; handSpace.y = 475; handSpace.h = HAND_HEIGHT; handSpace.w = VIEW_WINDOW_WIDTH;
+		handSurface = SDL_CreateRGBSurface(SDL_HWSURFACE,VIEW_WINDOW_WIDTH,HAND_HEIGHT,32,0,0,0,0);
+		
+		handSpace.x = 10; handSpace.y = 475; handSpace.h = HAND_HEIGHT; handSpace.w = VIEW_WINDOW_WIDTH;
 	}
 
 	void drawFromDeck(Deck *d){
@@ -228,34 +245,35 @@ public:
 	}
 
 	void draw(CardImage *c, SDL_Surface *screen, int viewMin){
-		// for(int i=0;i<numCards;i++){
-		// 	c->selectCard(handList[i].getValue());
-		// 	c->draw(screen, (105*i)+10, 476);
-		// }
 		SDL_Rect viewWindow;
+		int colorKey=SDL_MapRGB(screen->format,255,0,255);
+		SDL_SetColorKey(handSurface, SDL_SRCCOLORKEY,colorKey);
+		SDL_FillRect(handSurface,NULL,SDL_MapRGB(screen->format,255,0,255));
+		
+
 		for(int i=0;i<numCards;i++){
 			c->selectCard(handList[i].getValue());
 			c->draw(handSurface, (105*i)+10, 0);
 		}
-		cout<<"View MIN : "<<viewMin<<"  numcards: "<<numCards<<" numCards*110 = "<<(numCards*110)<<endl;
+		
 		//------ THERE IS A BUG HERE WITH LESS THAN 6 CARDS -------
-		if(viewMin >= 0 && viewMin < ((numCards*110) - VIEW_WINDOW_WIDTH)){
-			viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
-			cout<<"In case 1"<<endl;
-		}
-		else if(viewMin >=0 && viewMin < VIEW_WINDOW_WIDTH){
-			viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
-			cout<<"In case 2"<<endl;
-		}
-		else if(viewMin< 0 && viewMin < ((numCards*110) - VIEW_WINDOW_WIDTH)){
-			viewWindow.x = 0; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
-			cout<<"In case 3"<<endl;
-		}
-		else{
-			viewWindow.x = ((numCards*110) - VIEW_WINDOW_WIDTH); viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
-			cout<<"In case 4"<<endl;
-		}
-
+		// if(viewMin >= 0 && viewMin < ((numCards*110) - VIEW_WINDOW_WIDTH)){
+		// 	viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
+		// 	cout<<"case 1: "<<"winx: "<<viewWindow.x<<" winy: "<<viewWindow.y<<" width: "<<viewWindow.w<<" height: "<<viewWindow.h<<endl;
+		// }
+		// else if(viewMin >=0 && viewMin < VIEW_WINDOW_WIDTH){
+		// 	viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
+		// 	cout<<"case 2: "<<"winx: "<<viewWindow.x<<" winy: "<<viewWindow.y<<" width: "<<viewWindow.w<<" height: "<<viewWindow.h<<endl;
+		// }
+		// else if(viewMin< 0 && viewMin < ((numCards*110) - VIEW_WINDOW_WIDTH)){
+		// 	viewWindow.x = 0; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
+		// 	cout<<"case 3: "<<"winx: "<<viewWindow.x<<" winy: "<<viewWindow.y<<" width: "<<viewWindow.w<<" height: "<<viewWindow.h<<endl;
+		// }
+		// else{
+		// 	viewWindow.x = ((numCards*110) - VIEW_WINDOW_WIDTH); viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
+		// 	cout<<"case 4: "<<"winx: "<<viewWindow.x<<" winy: "<<viewWindow.y<<" width: "<<viewWindow.w<<" height: "<<viewWindow.h<<endl;
+		// }
+		viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
 		SDL_BlitSurface(handSurface, &viewWindow, screen, &handSpace);
 	}
 	bool isEmpty(){
@@ -264,11 +282,13 @@ public:
 	int incrementViewWindow(int prev){
 		int answer = 0;
 		if(numCards*110 < VIEW_WINDOW_WIDTH)
-			answer = prev;
+			answer = 0;
 		else if(prev+VIEW_WINDOW_STEP > ((numCards*110) - VIEW_WINDOW_WIDTH))
 			answer = ((numCards*110) - VIEW_WINDOW_WIDTH);
 		else
 			answer = prev+VIEW_WINDOW_STEP;
+
+		cout<<"View Min: "<<answer<<endl;
 		return answer;
 	}
 	int decrementViewWindow(int prev){
@@ -277,6 +297,8 @@ public:
 			answer = 0;
 		else
 			answer = prev-VIEW_WINDOW_STEP;
+
+		cout<<"View Min: "<<answer<<endl;
 		return answer;
 	}
 };
@@ -329,13 +351,13 @@ public:
 		{
 			for(int i=0;i<numCards;i++){
 				c->selectCard(boardList[i].getValue());
-				c->draw(screen, (105*i)+10, 476-CARDHEIGHT-8);
+				c->draw(screen, (48*i)+320, 350);
 			}
 		}
 		else {
 			for(int i=0;i<numCards;i++){
-				c->selectCard(boardList[i].getValue());
-				c->draw(screen, (105*i)+10, 476-3*CARDHEIGHT/2+7);
+				c->selectCard(13);
+				c->draw(screen, (48*i)+340, 320);
 			}
 		}
 	}
@@ -428,6 +450,10 @@ public:
 	void drawHand(CardImage *c, SDL_Surface *screen, int winMin){
 		h.draw(c,screen,winMin);	//player class
 	}
+	void drawBoard(CardImage *c, SDL_Surface *screen){
+		db.draw(c,screen);
+		upBoard.draw(c,screen);
+	}
 	int decHandWindow(int windowMin){
 		return h.decrementViewWindow(windowMin);
 	}
@@ -452,7 +478,7 @@ int main(int argc, char* argv[]){
 	SDL_WM_SetCaption("Lucky Bee", NULL);
 	BackgroundImage bg = BackgroundImage(BG_IMAGE, screen);
 	CardImage cardImages = CardImage(SPRITESHEET,screen);
-	
+	CardImage smallCardImages = CardImage(SPRITESHEET_S, screen, true);
 	Deck d = Deck(1);
 	d.outputDeck();
 	player p1(d);
@@ -465,6 +491,7 @@ int main(int argc, char* argv[]){
 		discardPile.draw(&cardImages, screen);
 //		p1.draw(&cardImages,screen, cardImages);	//player class
 		p1.drawHand(&cardImages,screen,windowMin);
+		p1.drawBoard(&smallCardImages,screen);
 		while(SDL_PollEvent(&event)){
 			if(event.type == SDL_QUIT){
 				done = true;
