@@ -159,7 +159,7 @@ public:
 		srand (time(NULL)); 
 		for(int i=0;i<numCards;i++){
 			if(cardAvailable >1 )
-				idx = rand() % (cardAvailable-1);
+				idx = rand() % (cardAvailable);
 			else
 				idx = 0;
 			val = cardList[idx];
@@ -208,23 +208,24 @@ class Hand{
 	SDL_Surface *handSurface;
 	SDL_Rect handSpace;
 	static const int HAND_HEIGHT = 140;
-	static const int HAND_WIDTH = 600;
-	static const int VIEW_WINDOW_WIDTH = 650;
+	static const int HAND_WIDTH = 4000;
+	static const int VIEW_WINDOW_WIDTH = 630;
 	static const int VIEW_WINDOW_STEP = 45;
 
 public:
 	Hand(){
 		numCards=0;
-		handSurface = SDL_CreateRGBSurface(SDL_HWSURFACE,VIEW_WINDOW_WIDTH,HAND_HEIGHT,32,0,0,0,0);
-		
+		handSurface = SDL_CreateRGBSurface(SDL_HWSURFACE,HAND_WIDTH,HAND_HEIGHT,32,0,0,0,0);
 		handSpace.x = 10; handSpace.y = 475; handSpace.h = HAND_HEIGHT; handSpace.w = VIEW_WINDOW_WIDTH;
 	}
 
 	void drawFromDeck(Deck *d){
 		Card c = d->drawCard();
 		c.flipCard();
+		//insert(c);
 		handList.insert(handList.end(), c);
 		numCards++;
+		sortHand();
 	}
 	void insert(vector<Card> inCards){
 		handList.insert(handList.end(),inCards.begin(),inCards.end());
@@ -236,6 +237,9 @@ public:
 		numCards++;
 		sort(handList.begin(), handList.end(), compare);
 	}
+	void sortHand(){
+		sort(handList.begin(),handList.end(),compare);
+	}
 	void outputHand(){
 		cout<<"Outputting Hand with "<<numCards<<" cards:"<<endl;
 		for(int i=0;i<numCards;i++){
@@ -246,6 +250,8 @@ public:
 
 	void draw(CardImage *c, SDL_Surface *screen, int viewMin){
 		SDL_Rect viewWindow;
+
+		//This code fills the hand with transparency
 		int colorKey=SDL_MapRGB(screen->format,255,0,255);
 		SDL_SetColorKey(handSurface, SDL_SRCCOLORKEY,colorKey);
 		SDL_FillRect(handSurface,NULL,SDL_MapRGB(screen->format,255,0,255));
@@ -256,23 +262,6 @@ public:
 			c->draw(handSurface, (105*i)+10, 0);
 		}
 		
-		//------ THERE IS A BUG HERE WITH LESS THAN 6 CARDS -------
-		// if(viewMin >= 0 && viewMin < ((numCards*110) - VIEW_WINDOW_WIDTH)){
-		// 	viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
-		// 	cout<<"case 1: "<<"winx: "<<viewWindow.x<<" winy: "<<viewWindow.y<<" width: "<<viewWindow.w<<" height: "<<viewWindow.h<<endl;
-		// }
-		// else if(viewMin >=0 && viewMin < VIEW_WINDOW_WIDTH){
-		// 	viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
-		// 	cout<<"case 2: "<<"winx: "<<viewWindow.x<<" winy: "<<viewWindow.y<<" width: "<<viewWindow.w<<" height: "<<viewWindow.h<<endl;
-		// }
-		// else if(viewMin< 0 && viewMin < ((numCards*110) - VIEW_WINDOW_WIDTH)){
-		// 	viewWindow.x = 0; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
-		// 	cout<<"case 3: "<<"winx: "<<viewWindow.x<<" winy: "<<viewWindow.y<<" width: "<<viewWindow.w<<" height: "<<viewWindow.h<<endl;
-		// }
-		// else{
-		// 	viewWindow.x = ((numCards*110) - VIEW_WINDOW_WIDTH); viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
-		// 	cout<<"case 4: "<<"winx: "<<viewWindow.x<<" winy: "<<viewWindow.y<<" width: "<<viewWindow.w<<" height: "<<viewWindow.h<<endl;
-		// }
 		viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
 		SDL_BlitSurface(handSurface, &viewWindow, screen, &handSpace);
 	}
@@ -365,6 +354,83 @@ public:
 		return boardList.empty();
 	}
 };
+class Button{
+
+	//680x530
+private:
+	int xpos, ypos, w, h;
+	bool active;
+	SDL_Surface *buttonSheet;
+	SDL_Rect src, dest;
+
+public:
+	static const int BUTTON_WIDTH = 105;
+	static const int BUTTON_HEIGHT = 55;
+	static const int Y_OFFSET = 2;
+	static const int X_OFFSET = 4;
+	Button(SDL_Surface *screen, int inx, int iny, int inw, int inh, bool newactive, int row){
+		xpos = inx;
+		ypos = iny;
+		w = inw;
+		h = inh;
+		active=newactive;
+
+		SDL_Surface *image;
+		int colorKey;
+		image = SDL_LoadBMP("buttons.bmp");
+		buttonSheet = SDL_ConvertSurface(image,screen->format, SDL_HWSURFACE);
+		colorKey=SDL_MapRGB(screen->format,255,0,255);
+		SDL_SetColorKey(buttonSheet, SDL_SRCCOLORKEY,colorKey);
+		
+		SDL_FreeSurface(image);
+		
+		if(row==0 || row==1)
+			src.y = BUTTON_HEIGHT*row+2+Y_OFFSET*row;
+		else
+			src.y=2;
+		if(active)
+			src.x = 1;
+		else
+			src.x = 1+X_OFFSET+BUTTON_WIDTH;
+		src.w = BUTTON_WIDTH; src.h = BUTTON_HEIGHT;
+		dest.x = xpos; dest.y =ypos; dest.w = w; dest.h = h;				
+	}
+	void draw(SDL_Surface *s){
+		SDL_BlitSurface(buttonSheet,&src,s,&dest);
+	}
+	int getXPos(){
+		return xpos;
+	}
+	int getYPos(){
+		return ypos;
+	}
+	int getW(){
+		return w;
+	}
+	int getH(){
+		return h;
+	}
+	bool getActive(){
+
+	}
+	void switchActive(){
+		active = !active;
+		if(active)
+			src.x=1;
+		else
+			src.x = 1+X_OFFSET+BUTTON_WIDTH;
+	}
+	bool clicked(int clickX, int clickY){
+		bool answer=false;
+		if(active)
+			if(clickX>xpos && clickX<xpos+w && clickY>ypos && clickY<ypos+h)
+				answer=true;
+
+		return answer;
+	}
+
+
+};
 
 class Discard{
 	deque<Card> discardPile;
@@ -429,6 +495,7 @@ public:
 		for(int i=0;i<maxHand;i++){ //Generates Hand
 			h.drawFromDeck(&d);
 		}
+		h.sortHand();
 		for(int i=0;i<maxBoard;i++){ //Generates Board Cards
 			upBoard.drawFromDeck(&d, true);
 			db.drawFromDeck(&d, false);
@@ -440,13 +507,6 @@ public:
 		cout<<endl;
 		db.outputHand();
 	}
-	// void draw(CardImage *c, SDL_Surface *screen, CardImage cardImages){
-		// //Displays both the player's hand and board hand.
-		// h.draw(&cardImages,screen);	//player class
-		// db.draw(&cardImages, screen);
-		// upBoard.draw(&cardImages, screen);
-		
-	// }
 	void drawHand(CardImage *c, SDL_Surface *screen, int winMin){
 		h.draw(c,screen,winMin);	//player class
 	}
@@ -483,13 +543,16 @@ int main(int argc, char* argv[]){
 	d.outputDeck();
 	player p1(d);
 	Discard discardPile(&d);
+	Button menuButton = Button(screen,675,530,105,55,true,2);
+	Button doneButton = Button(screen,675,470,105,55,true,1);
 	int windowMin = 0;
 	
 	while(!done){
 		bg.draw();
 		d.draw(&cardImages,screen);
 		discardPile.draw(&cardImages, screen);
-//		p1.draw(&cardImages,screen, cardImages);	//player class
+		doneButton.draw(screen);
+		menuButton.draw(screen);
 		p1.drawHand(&cardImages,screen,windowMin);
 		p1.drawBoard(&smallCardImages,screen);
 		while(SDL_PollEvent(&event)){
@@ -509,6 +572,12 @@ int main(int argc, char* argv[]){
 				else if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH){
 					p1.drawFromDeck(&d);
 					cout<<"Drawing card from deck"<<endl;
+				}
+				if(doneButton.clicked(event.button.x,event.button.y)){
+					cout<<"Done clicked"<<endl;
+				}
+				else if(menuButton.clicked(event.button.x, event.button.y)){
+					cout<<"Menu clicked"<<endl;
 				}
 			}
 		}
