@@ -22,6 +22,8 @@ string BG_IMAGE = "background.bmp";
 string SPRITESHEET_S = "cardfaces_s.bmp";
 const int CARDSHEET_WIDTH = 564;
 
+
+//Image Classes
 class CardImage{
 	string fname;
 	SDL_Surface *cardSheet;
@@ -91,6 +93,7 @@ public:
 	}
 
 };
+
 class TextImage{
 	TTF_Font *font;
 	SDL_Surface *imgTxt;
@@ -126,8 +129,8 @@ public:
 		SDL_BlitSurface(imgTxt,NULL,screen,&txtWindow);
 	}
 
-
 };
+
 class BackgroundImage{
 	SDL_Surface *bg, *screen;
 	SDL_Rect src;
@@ -148,6 +151,9 @@ public:
 	
 };
 
+
+
+//Card Structures
 class Card{
 	int value;
 	bool faceUp;
@@ -255,6 +261,34 @@ public:
 	}
 };
 
+class Discard{
+	deque<Card> discardPile;
+	int numCards;
+
+public:
+	Discard(Deck *d){
+		numCards = 0;
+		Card c = d->drawCard();
+		c.flipCard();
+		discardPile.push_front(c);
+		numCards++;
+
+	}
+	void outputDiscard(){
+		cout<<"Outputting Discard Pile List"<<endl;
+		for(int i=0;i<numCards;i++){
+			discardPile[i].outputCard();
+		}
+	}
+	void draw(CardImage *c, SDL_Surface *screen){
+		//c->selectCard(12);
+		//c->draw(screen,401,165);
+		Card temp = discardPile.front();
+		c->selectCard(temp.getValue());
+		c->draw(screen,308,165);
+	}
+};
+
 bool compare(Card a, Card b) 
 {
 	int tempa = a.getValue();
@@ -264,6 +298,7 @@ bool compare(Card a, Card b)
 	
 	return (tempa > tempb);
 }
+
 class Hand{
 	vector<Card> handList;
 	int numCards, viewMin;
@@ -438,6 +473,9 @@ public:
 		return boardList.empty();
 	}
 };
+
+
+//UI Classes
 class UIElement{
 public:
 	bool clicked(int x, int y){
@@ -450,6 +488,7 @@ public:
 
 	}
 };
+
 class Slider : public UIElement {
 private:
 	int xpos;
@@ -594,36 +633,10 @@ public:
 	void execute(){
 		cout<<"Button clicked"<<endl;
 	}
-
 };
 
-class Discard{
-	deque<Card> discardPile;
-	int numCards;
 
-public:
-	Discard(Deck *d){
-		numCards = 0;
-		Card c = d->drawCard();
-		c.flipCard();
-		discardPile.push_front(c);
-		numCards++;
-
-	}
-	void outputDiscard(){
-		cout<<"Outputting Discard Pile List"<<endl;
-		for(int i=0;i<numCards;i++){
-			discardPile[i].outputCard();
-		}
-	}
-	void draw(CardImage *c, SDL_Surface *screen){
-		//c->selectCard(12);
-		//c->draw(screen,401,165);
-		Card temp = discardPile.front();
-		c->selectCard(temp.getValue());
-		c->draw(screen,308,165);
-	}
-};
+//Animation Classes
 class SlidingCard{
 	double x, y, xvel, yvel;
 	bool done;
@@ -666,6 +679,9 @@ public:
 		}
 	}
 };
+
+
+//Player Class
 class Player{
 	Hand h; //Hidden Play Hand
 	/* I made these pointers for constructor purposes. I couldn't get it to work otherwise.
@@ -752,6 +768,8 @@ public:
 	}
 };
 
+
+
 int main(int argc, char* argv[]){
 	SDL_Event event;
 	SDL_Surface *screen;
@@ -763,7 +781,7 @@ int main(int argc, char* argv[]){
 								SDL_ANYFORMAT|
 								SDL_HWSURFACE|
 								SDL_DOUBLEBUF);
-	SDL_WM_SetCaption("Lucky Bee", NULL);
+	SDL_WM_SetCaption("Lucky B", NULL);
 	BackgroundImage bg = BackgroundImage(BG_IMAGE, screen);
 	CardImage cardImages = CardImage(SPRITESHEET,screen);
 	CardImage smallCardImages = CardImage(SPRITESHEET_S, screen, true);
