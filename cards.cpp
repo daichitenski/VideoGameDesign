@@ -12,6 +12,7 @@ const int SCREENWIDTH = 800;
 const int SCREENHEIGHT= 600;
 const int CARDHEIGHT = 120;
 const int CARDWIDTH = 90;
+const int CARDWIDTH_WITH_OFFSET = 110;
 const int CARDHEIGHT_SMALL = 48;
 const int CARDWIDTH_SMALL = 37;
 string SPRITESHEET = "cardfaces.bmp";
@@ -204,7 +205,7 @@ bool compare(Card a, Card b)
 }
 class Hand{
 	vector<Card> handList;
-	int numCards;
+	int numCards, viewMin;
 	SDL_Surface *handSurface;
 	SDL_Rect handSpace;
 	static const int HAND_HEIGHT = 140;
@@ -216,7 +217,8 @@ public:
 	Hand(){
 		numCards=0;
 		handSurface = SDL_CreateRGBSurface(SDL_HWSURFACE,HAND_WIDTH,HAND_HEIGHT,32,0,0,0,0);
-		handSpace.x = 10; handSpace.y = 475; handSpace.h = HAND_HEIGHT; handSpace.w = VIEW_WINDOW_WIDTH;
+		handSpace.x = 10; handSpace.y = 472; handSpace.h = HAND_HEIGHT; handSpace.w = VIEW_WINDOW_WIDTH;
+		viewMin = 0;
 	}
 
 	void drawFromDeck(Deck *d){
@@ -248,7 +250,7 @@ public:
 		cout<<endl;
 	}
 
-	void draw(CardImage *c, SDL_Surface *screen, int viewMin){
+	void draw(CardImage *c, SDL_Surface *screen){
 		SDL_Rect viewWindow;
 
 		//This code fills the hand with transparency
@@ -268,27 +270,16 @@ public:
 	bool isEmpty(){
 		return handList.empty();
 	}
-	int incrementViewWindow(int prev){
-		int answer = 0;
-		if(numCards*110 < VIEW_WINDOW_WIDTH)
-			answer = 0;
-		else if(prev+VIEW_WINDOW_STEP > ((numCards*110) - VIEW_WINDOW_WIDTH))
-			answer = ((numCards*110) - VIEW_WINDOW_WIDTH);
-		else
-			answer = prev+VIEW_WINDOW_STEP;
-
-		cout<<"View Min: "<<answer<<endl;
-		return answer;
-	}
-	int decrementViewWindow(int prev){
-		int answer = 0;
-		if(prev-VIEW_WINDOW_STEP < 0)
-			answer = 0;
-		else
-			answer = prev-VIEW_WINDOW_STEP;
-
-		cout<<"View Min: "<<answer<<endl;
-		return answer;
+	void translateView(int offset){
+		int temp = offset+viewMin;
+		if(temp<0 || (numCards*110 < VIEW_WINDOW_WIDTH)) viewMin = 0;
+		else if(temp>((numCards*CARDWIDTH_WITH_OFFSET)-VIEW_WINDOW_WIDTH)) viewMin = (numCards*CARDWIDTH_WITH_OFFSET)-VIEW_WINDOW_WIDTH;
+		else{
+			viewMin = temp;
+		}
+	}	
+	int getNumCards(){
+		return numCards;
 	}
 };
 
@@ -296,11 +287,13 @@ class Board // The Board Hand Class
 {
 private:
 	vector<Card> boardList;
-	bool topLayer;
+	bool topLayer, main;
 	int numCards;
+
 public:
-	Board()
+	Board(bool m)
 	{
+		main = m;
 		numCards =0;
 		topLayer = false;
 	}
@@ -336,25 +329,108 @@ public:
 	}
 
 	void draw(CardImage *c, SDL_Surface *screen){
-		if(topLayer == true)
-		{
-			for(int i=0;i<numCards;i++){
-				c->selectCard(boardList[i].getValue());
-				c->draw(screen, (48*i)+320, 350);
+		if(main){
+			if(topLayer == true)
+			{
+				for(int i=0;i<numCards;i++){
+					c->selectCard(boardList[i].getValue());
+					c->draw(screen, (48*i)+320, 350);
+				}
+			}
+			else {
+				for(int i=0;i<numCards;i++){
+					c->selectCard(13);
+					c->draw(screen, (48*i)+340, 320);
+				}
 			}
 		}
-		else {
-			for(int i=0;i<numCards;i++){
-				c->selectCard(13);
-				c->draw(screen, (48*i)+340, 320);
-			}
+		else{
+			
 		}
 	}
 	bool isEmpty(){
 		return boardList.empty();
 	}
 };
-class Button{
+class UIElement{
+public:
+	bool clicked(int x, int y){
+
+	}
+	bool draw(){
+
+	}
+	void execute(){
+
+	}
+};
+class Slider : public UIElement {
+private:
+	int xpos;
+	bool active;
+	SDL_Rect src, dest;
+	SDL_Surface *buttonSheet;
+public:
+	static const int SLIDER_WIDTH = 84;
+	static const int SLIDER_HEIGHT = 37;
+	static const int SLIDER_YPOS = 430;
+	static const int MAX_SLIDER = 570;
+	static const int OFFSET = 5;
+
+	Slider(SDL_Surface *screen){
+		xpos=0;
+		active=true;
+
+		SDL_Surface *image;
+		int colorKey;
+		image = SDL_LoadBMP("buttons.bmp");
+		buttonSheet = SDL_ConvertSurface(image,screen->format, SDL_HWSURFACE);
+		colorKey=SDL_MapRGB(screen->format,255,0,255);
+		SDL_SetColorKey(buttonSheet, SDL_SRCCOLORKEY,colorKey);
+		
+		SDL_FreeSurface(image);
+
+		//row in the sprite sheet
+		src.y=120;
+		if(active)
+			src.x=OFFSET;
+		else
+			src.x=(OFFSET*2)+SLIDER_WIDTH;
+
+		src.h=SLIDER_HEIGHT; src.w=SLIDER_WIDTH;
+		dest.x = xpos; dest.y=SLIDER_YPOS; dest.h=SLIDER_HEIGHT; dest.w=SLIDER_WIDTH;
+
+	}
+
+	bool clicked(int x, int y){
+		bool answer= false;
+		if(active){
+			if(x>xpos && x<xpos+SLIDER_WIDTH && y>SLIDER_YPOS && y<SLIDER_YPOS+SLIDER_HEIGHT)
+				return true;
+		}
+	}
+	void translate(int xOffset){
+		xpos+=xOffset;
+		if(xpos < 0) xpos=0;
+		if(xpos > (MAX_SLIDER-SLIDER_WIDTH)) xpos=(MAX_SLIDER-SLIDER_WIDTH);
+	}
+	void draw(SDL_Surface *s, int x){
+		dest.x=x;
+		SDL_BlitSurface(buttonSheet,&src,s,&dest);
+	}
+	void draw(SDL_Surface *s){
+		dest.x = xpos + 40;
+		SDL_BlitSurface(buttonSheet,&src,s,&dest);	
+	}
+	void execute(){
+		cout<<"Slider clicked"<<endl;
+	}
+	int getX(){
+		return xpos;
+	}
+};
+
+class Button: public UIElement{
 
 	//680x530
 private:
@@ -428,7 +504,9 @@ public:
 
 		return answer;
 	}
-
+	void execute(){
+		cout<<"Button clicked"<<endl;
+	}
 
 };
 
@@ -460,15 +538,19 @@ public:
 	}
 };
 
-class player{
+class Player{
 	Hand h; //Hidden Play Hand
-	Board upBoard; //Face up Board Hand Section
-	Board db; //Face down Board Hand section
+	/* I made these pointers for constructor purposes. I couldn't get it to work otherwise.
+	   We might have to be careful about cleaning up the Boards if we start deleting players. */
+
+	Board *upBoard; //Face up Board Hand Section
+	Board *db; //Face down Board Hand section 
 	int maxHand; //Number per hand based on deck
 	int maxBoard; //Number for board cards based on deck
+	bool main; // True if this is player 1
 		
 public:
-	player(Deck &d, int deckNum=1) //I still have to take into consideration the number of players playing
+	Player(Deck &d, bool mainPlayer, int deckNum=1) //I still have to take into consideration the number of players playing
 	{
 		switch (deckNum) //Determines the number of cards to deal
 		{
@@ -496,32 +578,44 @@ public:
 			h.drawFromDeck(&d);
 		}
 		h.sortHand();
+		upBoard = new Board(mainPlayer);
+		db = new Board(mainPlayer);
 		for(int i=0;i<maxBoard;i++){ //Generates Board Cards
-			upBoard.drawFromDeck(&d, true);
-			db.drawFromDeck(&d, false);
+			upBoard->drawFromDeck(&d, true);
+			db->drawFromDeck(&d, false);
 		}
+		main = mainPlayer;
 		cout<<endl;
 		h.outputHand();
 		cout<<endl;
-		upBoard.outputHand();
+		upBoard->outputHand();
 		cout<<endl;
-		db.outputHand();
+		db->outputHand();
 	}
-	void drawHand(CardImage *c, SDL_Surface *screen, int winMin){
-		h.draw(c,screen,winMin);	//player class
+	void drawHand(CardImage *c, SDL_Surface *screen){
+		h.draw(c,screen);
 	}
 	void drawBoard(CardImage *c, SDL_Surface *screen){
-		db.draw(c,screen);
-		upBoard.draw(c,screen);
+		db->draw(c,screen);
+		upBoard->draw(c,screen);
 	}
-	int decHandWindow(int windowMin){
-		return h.decrementViewWindow(windowMin);
-	}
-	int incHandWindow(int windowMin){
-		return h.incrementViewWindow(windowMin);
+	void draw(CardImage *c, SDL_Surface *screen){
+		if(main){
+			h.draw(c,screen);	
+			db->draw(c,screen);
+			upBoard->draw(c,screen);
+		}
+
+		
 	}
 	void drawFromDeck(Deck *d){
 		h.drawFromDeck(d);
+	}
+	int getNumCardsInHand(){
+		return h.getNumCards();
+	}
+	void translateHandView(int offset){
+		h.translateView(offset);
 	}
 };
 
@@ -541,19 +635,30 @@ int main(int argc, char* argv[]){
 	CardImage smallCardImages = CardImage(SPRITESHEET_S, screen, true);
 	Deck d = Deck(1);
 	d.outputDeck();
-	player p1(d);
+	Player p1 = Player(d,true);
+	Player p2 = Player(d,false);
 	Discard discardPile(&d);
 	Button menuButton = Button(screen,675,530,105,55,true,2);
 	Button doneButton = Button(screen,675,470,105,55,true,1);
 	int windowMin = 0;
 	
+	vector<UIElement> ui;
+	ui.push_back(menuButton);
+	ui.push_back(doneButton);
+	Slider slide = Slider(screen);
+	bool mouseDown = false;
+	int handPixelWidth;
+	int adjustment;
+
+
 	while(!done){
 		bg.draw();
 		d.draw(&cardImages,screen);
 		discardPile.draw(&cardImages, screen);
 		doneButton.draw(screen);
 		menuButton.draw(screen);
-		p1.drawHand(&cardImages,screen,windowMin);
+		slide.draw(screen);
+		p1.drawHand(&cardImages,screen);
 		p1.drawBoard(&smallCardImages,screen);
 		while(SDL_PollEvent(&event)){
 			if(event.type == SDL_QUIT){
@@ -561,23 +666,34 @@ int main(int argc, char* argv[]){
 			}
 			if(event.type == SDL_MOUSEBUTTONDOWN){
 				cout<<"Click pos: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
-				if(event.button.y > 400 && event.button.x <60 && event.button.y < 475 && event.button.x > 0){
-					windowMin=p1.decHandWindow(windowMin);
-					cout<<"Moving hand window to the left"<<endl;
-				}
-				else if(event.button.y > 400 && event.button.x <800 && event.button.y < 475 && event.button.x > 710){
-					windowMin=p1.incHandWindow(windowMin);
-					cout<<"Moving hand window to the right"<<endl;
-				}
-				else if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH){
+	
+				if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH){
 					p1.drawFromDeck(&d);
 					cout<<"Drawing card from deck"<<endl;
 				}
-				if(doneButton.clicked(event.button.x,event.button.y)){
-					cout<<"Done clicked"<<endl;
+				if(slide.clicked(event.button.x,event.button.y)){
+					cout<<"Slider clicked"<<endl;
+					mouseDown = true;
 				}
-				else if(menuButton.clicked(event.button.x, event.button.y)){
-					cout<<"Menu clicked"<<endl;
+				for(int i=0;i<ui.size();i++){
+					if(ui[i].clicked(event.button.x,event.button.y))
+						ui[i].execute();
+				}
+			}
+			else if(event.type == SDL_MOUSEBUTTONUP){
+				if(slide.clicked(event.button.x,event.button.y)){
+					cout<<"Slider released"<<endl;
+					mouseDown = false;
+				}
+			}
+			else if(event.type == SDL_MOUSEMOTION){
+				if(mouseDown == true){
+					slide.translate(event.motion.xrel);
+					handPixelWidth = p1.getNumCardsInHand()*CARDWIDTH_WITH_OFFSET;
+					adjustment = (handPixelWidth / slide.MAX_SLIDER)*event.motion.xrel;
+					cout<<"Adjustment to window: "<<adjustment<<endl;
+					p1.translateHandView(adjustment);
+
 				}
 			}
 		}
