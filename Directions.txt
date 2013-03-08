@@ -1,0 +1,6 @@
+To get the text display to work follow these steps
+1. copy SDL_ttf.dll into the SDL/lib folder
+2. copy SDL_ttf.h into the SDL/include folder
+3. copy libfreetype-6.dll, zlib1.dll, and the Sintony-Bold.ttf and Sintony-Regular.ttf into the same folder as a the executable
+
+4. Make sure you use the new build file because I had to add a new linker directive.

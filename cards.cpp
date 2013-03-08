@@ -1,5 +1,7 @@
 #include "SDL/SDL.h"
+#include "SDL/SDL_ttf.h"
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <deque>
 #include <time.h>
@@ -18,6 +20,7 @@ const int CARDWIDTH_SMALL = 37;
 string SPRITESHEET = "cardfaces.bmp";
 string BG_IMAGE = "background.bmp";
 string SPRITESHEET_S = "cardfaces_s.bmp";
+const int CARDSHEET_WIDTH = 564;
 
 class CardImage{
 	string fname;
@@ -59,14 +62,27 @@ public:
 			dest.x =0; dest.y = 0; dest.w = CARDWIDTH_SMALL; dest.h = CARDHEIGHT_SMALL;			
 		}
 	}
-	void selectCard(int val){
+	void selectCard(int val, bool selected=false, bool flipped = false){
 		if(!small){
-			src.x = OFFSET+(OFFSET*val) + CARDWIDTH*val;
-			src.y = OFFSET;
+			if(!selected){
+				src.x = OFFSET+(OFFSET*val) + CARDWIDTH*val;
+				src.y = OFFSET;
+			}
+			else{
+				src.x = OFFSET+1+(OFFSET*val) + CARDWIDTH*val;
+				src.y = (OFFSET*3)+CARDHEIGHT;
+			}
 		}
 		else{
-			src.x = OFFSET_SMALL+(OFFSET_SMALL*val) + CARDWIDTH_SMALL*val;
-			src.y = OFFSET_SMALL;
+			if(!flipped){
+				src.x = OFFSET_SMALL+(OFFSET_SMALL*val) + CARDWIDTH_SMALL*val;
+				src.y = OFFSET_SMALL;
+			}
+			else{
+				int temp = OFFSET_SMALL+(OFFSET_SMALL*(val+1))+CARDWIDTH_SMALL*(val+1);
+				src.x = CARDSHEET_WIDTH - temp;
+				src.y = (4*OFFSET_SMALL)+CARDHEIGHT_SMALL;	
+			}
 		}
 	}
 	void draw(SDL_Surface *s, int x, int y){
@@ -75,7 +91,43 @@ public:
 	}
 
 };
+class TextImage{
+	TTF_Font *font;
+	SDL_Surface *imgTxt;
+	SDL_Rect txtWindow;
+	SDL_Color txtColor;
+	string fontName;
 
+public:
+	TextImage(string fName, int size){
+		TTF_Init();
+		fontName = fName;
+		font = TTF_OpenFont(fontName.c_str(),size);
+		txtColor.r=txtColor.g=220;
+		txtColor.b=120;
+	}
+	void setSize(int size){
+		font = TTF_OpenFont(fontName.c_str(),size);
+	}
+	void setColor(SDL_Color fColor){
+		txtColor = fColor;
+	}
+	void setColor(int r, int g, int b){
+		txtColor.r = r;
+		txtColor.g = g;
+		txtColor.b = b;
+	}
+	void setText(string t){
+		imgTxt = TTF_RenderText_Solid(font,t.c_str(),txtColor);
+	}
+	void draw(SDL_Surface *screen, int x, int y){
+		txtWindow.x = x;
+		txtWindow.y = y;
+		SDL_BlitSurface(imgTxt,NULL,screen,&txtWindow);
+	}
+
+
+};
 class BackgroundImage{
 	SDL_Surface *bg, *screen;
 	SDL_Rect src;
@@ -100,12 +152,14 @@ class Card{
 	int value;
 	bool faceUp;
 	bool special;
+	bool selected;
 
 public:
 	Card(){
 		value = 0;
 		special = false;
 		faceUp = false;
+		selected = false;
 	}
 	Card(int newVal, bool facing){
 		value = newVal;
@@ -115,6 +169,7 @@ public:
 			special = false;
 		//image = newImage;
 		faceUp = facing;
+		selected=false;
 	}
 	int getValue(){
 		return value;
@@ -122,6 +177,9 @@ public:
 	bool isSpecial()
 	{
 		return special;
+	}
+	bool isSelected(){
+		return selected;
 	}
 	void flipCard(){
 		faceUp = !faceUp;
@@ -136,6 +194,9 @@ public:
 			cout<<"  Face Up"<<endl;
 		else
 			cout<<"  Face Down"<<endl;
+	}
+	void toggleSelected(){
+		selected = !selected;
 	}
 };
 
@@ -249,7 +310,9 @@ public:
 		}
 		cout<<endl;
 	}
-
+	void highlightCard(int idx){
+		handList[idx].toggleSelected();
+	}
 	void draw(CardImage *c, SDL_Surface *screen){
 		SDL_Rect viewWindow;
 
@@ -260,8 +323,16 @@ public:
 		
 
 		for(int i=0;i<numCards;i++){
-			c->selectCard(handList[i].getValue());
-			c->draw(handSurface, (105*i)+10, 0);
+			if(handList[i].isSelected()){
+				c->selectCard(handList[i].getValue(),true);
+				c->draw(handSurface, (105*i)+10, 1);
+			}
+				
+			else{
+				c->selectCard(handList[i].getValue());
+				c->draw(handSurface, (105*i)+10, 0);
+			}
+			
 		}
 		
 		viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
@@ -269,6 +340,9 @@ public:
 	}
 	bool isEmpty(){
 		return handList.empty();
+	}
+	int getViewMin(){
+		return viewMin;
 	}
 	void translateView(int offset){
 		int temp = offset+viewMin;
@@ -321,7 +395,7 @@ public:
 		numCards++;
 	}
 	void outputHand(){
-		cout<<"Outputting Hand with "<<numCards<<" cards:"<<endl;
+		cout<<"Outputting Board with "<<numCards<<" cards:"<<endl;
 		for(int i=0;i<numCards;i++){
 			boardList[i].outputCard();
 		}
@@ -345,7 +419,19 @@ public:
 			}
 		}
 		else{
-			
+			if(topLayer == true)
+			{
+				for(int i=0;i<numCards;i++){
+					c->selectCard(boardList[i].getValue());
+					c->draw(screen, (48*i)+320, 80);
+				}
+			}
+			else {
+				for(int i=0;i<numCards;i++){
+					c->selectCard(13);
+					c->draw(screen, (48*i)+340, 50);
+				}
+			}
 		}
 	}
 	bool isEmpty(){
@@ -405,9 +491,10 @@ public:
 	bool clicked(int x, int y){
 		bool answer= false;
 		if(active){
-			if(x>xpos && x<xpos+SLIDER_WIDTH && y>SLIDER_YPOS && y<SLIDER_YPOS+SLIDER_HEIGHT)
-				return true;
+			if(x>=xpos+40 && x<xpos+40+SLIDER_WIDTH && y>SLIDER_YPOS && y<SLIDER_YPOS+SLIDER_HEIGHT)
+				answer= true;
 		}
+		return answer;
 	}
 	void translate(int xOffset){
 		xpos+=xOffset;
@@ -599,17 +686,22 @@ public:
 		db->draw(c,screen);
 		upBoard->draw(c,screen);
 	}
-	void draw(CardImage *c, SDL_Surface *screen){
+	void draw(CardImage *cards, CardImage *smallCards, SDL_Surface *screen){
 		if(main){
-			h.draw(c,screen);	
-			db->draw(c,screen);
-			upBoard->draw(c,screen);
+			h.draw(cards,screen);	
 		}
-
+		db->draw(smallCards,screen);
+		upBoard->draw(smallCards,screen);
 		
+	}
+	void pickCard(int idx){
+		h.highlightCard(idx);
 	}
 	void drawFromDeck(Deck *d){
 		h.drawFromDeck(d);
+	}
+	int getHandViewMin(){
+		return h.getViewMin();
 	}
 	int getNumCardsInHand(){
 		return h.getNumCards();
@@ -623,7 +715,8 @@ int main(int argc, char* argv[]){
 	SDL_Event event;
 	SDL_Surface *screen;
 	bool done = false;
-
+	TextImage bigText = TextImage("Sintony-Bold.ttf",20);
+	TextImage smallText = TextImage("Sintony-Regular.ttf",15);
 	SDL_Init( SDL_INIT_EVERYTHING );
 	screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT,16,
 								SDL_ANYFORMAT|
@@ -649,6 +742,7 @@ int main(int argc, char* argv[]){
 	bool mouseDown = false;
 	int handPixelWidth;
 	int adjustment;
+	stringstream ss;
 
 
 	while(!done){
@@ -657,9 +751,20 @@ int main(int argc, char* argv[]){
 		discardPile.draw(&cardImages, screen);
 		doneButton.draw(screen);
 		menuButton.draw(screen);
+
+		ss.str("");
+		ss << "Cards: "<<p1.getNumCardsInHand();
+		bigText.setText(ss.str());
+		bigText.draw(screen, 685,420);
+		ss.str("");
+		ss << "Player 2 :  "<<p2.getNumCardsInHand()<<" cards";
+		smallText.setText(ss.str());
+		smallText.draw(screen,340,15);
+
 		slide.draw(screen);
-		p1.drawHand(&cardImages,screen);
-		p1.drawBoard(&smallCardImages,screen);
+		p1.draw(&cardImages, &smallCardImages, screen);
+		p2.draw(&cardImages, &smallCardImages, screen);
+
 		while(SDL_PollEvent(&event)){
 			if(event.type == SDL_QUIT){
 				done = true;
@@ -675,16 +780,26 @@ int main(int argc, char* argv[]){
 					cout<<"Slider clicked"<<endl;
 					mouseDown = true;
 				}
-				for(int i=0;i<ui.size();i++){
-					if(ui[i].clicked(event.button.x,event.button.y))
-						ui[i].execute();
+				//10,475	625,475
+				//10,880	625,880
+				if(event.button.x>10 && event.button.x<625 && event.button.y>475 && event.button.y<880){
+					cout<<"Hand Area clicked"<<endl;
+					int clickPoint = p1.getHandViewMin()+event.button.x;
+					cout<<"Point: "<<clickPoint<<" viewMin: "<<p1.getHandViewMin()<<" card number: "<<clickPoint/105<<endl;
+					p1.pickCard(clickPoint/105);
 				}
+
+				// for(int i=0;i<ui.size();i++){
+				// 	if(ui[i].clicked(event.button.x,event.button.y))
+				// 		ui[i].execute();
+				// }
 			}
 			else if(event.type == SDL_MOUSEBUTTONUP){
-				if(slide.clicked(event.button.x,event.button.y)){
+				if(mouseDown ==true){	
 					cout<<"Slider released"<<endl;
 					mouseDown = false;
 				}
+				
 			}
 			else if(event.type == SDL_MOUSEMOTION){
 				if(mouseDown == true){
