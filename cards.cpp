@@ -624,7 +624,48 @@ public:
 		c->draw(screen,308,165);
 	}
 };
-
+class SlidingCard{
+	double x, y, xvel, yvel;
+	bool done;
+	long last;
+public:
+	SlidingCard(double xv, double yv){
+		x=401;
+		y=165;
+		xvel=xv;
+		yvel=yv;
+		done = true;
+	}
+	void setSpeeds(double xv, double yv){
+		xvel=xv;
+		yvel=yv;	
+	}
+	void update(){
+		long next = SDL_GetTicks();
+		float deltaT = (float)(next-last);
+		last=next;
+		if(!done){
+			x+=xvel/deltaT;
+			y+=yvel/deltaT;
+			cout<<"Elapsed: "<<deltaT<<" y-adjustment:"<<yvel/deltaT<<endl;
+		}
+		if(x<(-CARDWIDTH) || x>800 || y<(-CARDHEIGHT) || y>600){
+			done=true;
+		}
+	}
+	void reset(){
+		x=401;
+		y=165;
+		done=false;
+		last = SDL_GetTicks();
+	}
+	void draw(CardImage *c, SDL_Surface *screen){
+		if(!done){
+			c->selectCard(13);
+			c->draw(screen,x,y);
+		}
+	}
+};
 class Player{
 	Hand h; //Hidden Play Hand
 	/* I made these pointers for constructor purposes. I couldn't get it to work otherwise.
@@ -744,6 +785,8 @@ int main(int argc, char* argv[]){
 	int adjustment;
 	stringstream ss;
 
+	//SlidingCard sc = SlidingCard(-1,-600);
+	SlidingCard sc = SlidingCard(200,600);
 
 	while(!done){
 		bg.draw();
@@ -760,10 +803,13 @@ int main(int argc, char* argv[]){
 		ss << "Player 2 :  "<<p2.getNumCardsInHand()<<" cards";
 		smallText.setText(ss.str());
 		smallText.draw(screen,340,15);
-
+		
 		slide.draw(screen);
 		p1.draw(&cardImages, &smallCardImages, screen);
 		p2.draw(&cardImages, &smallCardImages, screen);
+
+		sc.update();
+		sc.draw(&cardImages, screen);
 
 		while(SDL_PollEvent(&event)){
 			if(event.type == SDL_QUIT){
@@ -774,6 +820,7 @@ int main(int argc, char* argv[]){
 	
 				if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH){
 					p1.drawFromDeck(&d);
+					sc.reset();
 					cout<<"Drawing card from deck"<<endl;
 				}
 				if(slide.clicked(event.button.x,event.button.y)){
@@ -789,10 +836,6 @@ int main(int argc, char* argv[]){
 					p1.pickCard(clickPoint/105);
 				}
 
-				// for(int i=0;i<ui.size();i++){
-				// 	if(ui[i].clicked(event.button.x,event.button.y))
-				// 		ui[i].execute();
-				// }
 			}
 			else if(event.type == SDL_MOUSEBUTTONUP){
 				if(mouseDown ==true){	
