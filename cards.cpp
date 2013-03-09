@@ -319,7 +319,6 @@ class Hand{
 	static const int HAND_WIDTH = 4000;
 	static const int VIEW_WINDOW_WIDTH = 630;
 	static const int VIEW_WINDOW_STEP = 45;
-
 public:
 	Hand(){
 		numCards=0;
@@ -327,7 +326,6 @@ public:
 		handSpace.x = 10; handSpace.y = 472; handSpace.h = HAND_HEIGHT; handSpace.w = VIEW_WINDOW_WIDTH;
 		viewMin = 0;
 	}
-
 	void drawFromDeck(Deck *d){
 		if(d->getNumCards()>0){
 			Card c = d->drawCard();
@@ -357,6 +355,11 @@ public:
 			handList[i].outputCard();
 		}
 		cout<<endl;
+		// cout<<"Outputting Hand with "<<handList.size()<<" cards:"<<endl;
+		// for(int i=0;i<handList.size();i++){
+			// handList[i].outputCard();
+		// }
+		// cout<<endl;
 	}
 	void highlightCard(int idx){
 		handList[idx].toggleSelected();
@@ -405,6 +408,27 @@ public:
 			outputHand();
 		}
 		return numCards;
+	}
+	void remove(vector<Card> inCards)
+	{
+		for(int i=0; i<inCards.size(); i++)
+			remove(inCards[i]);
+	}
+	void remove(Card newCard)
+	{
+		cout << "REMOVAL of : " << newCard.getValue() << endl;
+		int i = 0, l = handList.size();
+		while(l == handList.size() && i < l)//exit either when found or end of hand
+		{
+			cout << "Card # " << handList[i].getValue() << endl;
+			if(handList[i].getValue() == newCard.getValue())
+			{
+				handList.erase(handList.begin()+i);
+			}
+			else
+				i++;
+		}
+		numCards = handList.size();
 	}
 };
 
@@ -781,8 +805,35 @@ public:
 	void translateHandView(int offset){
 		h.translateView(offset);
 	}
+	// void play(Deck &d, Discard &dis)
+	// {
+	// }
 };
-
+// class Computer:public Player
+// {
+// private:
+	// Hand h; //Hidden Play Hand
+	// Board *upBoard; //Face up Board Hand Section
+	// Board *db; //Face down Board Hand section 
+	// int maxHand; //Number per hand based on deck
+	// int maxBoard; //Number for board cards based on deck
+	// bool main; // True if this is player 1
+	
+// public:
+	// Computer(Deck &d, int deckNum=1)
+	// {
+		// Player::Player(d, false, deckNum);
+	// }
+	// void play(Deck &d, Discard &dis)
+	// {
+		// int i = 0;
+		// while(compare(h
+		
+		// while(h.getNumCards() < maxHand)
+			// h.drawFromDeck(d);
+			
+	// }
+// };
 
 
 int main(int argc, char* argv[]){
@@ -803,6 +854,8 @@ int main(int argc, char* argv[]){
 	Deck d = Deck(1);
 	d.outputDeck();
 	Player p1 = Player(d,true);
+	//Computer c1 = Computer(d, false);
+
 	Player p2 = Player(d,false);
 	Discard discardPile(&d);
 	Button menuButton = Button(screen,675,530,105,55,true,2);
@@ -823,11 +876,12 @@ int main(int argc, char* argv[]){
 
 	while(!done){
 		bg.draw();
+
 		d.draw(&cardImages,screen);
 		discardPile.draw(&cardImages, screen);
 		doneButton.draw(screen);
 		menuButton.draw(screen);
-
+		
 		ss.str("");
 		ss << "Cards: "<<p1.getNumCardsInHand();
 		bigText.setText(ss.str());
@@ -839,8 +893,8 @@ int main(int argc, char* argv[]){
 		
 		slide.draw(screen);
 		p1.draw(&cardImages, &smallCardImages, screen);
+		//c1.draw(&cardImages, &smallCardImages, screen);
 		p2.draw(&cardImages, &smallCardImages, screen);
-
 		sc.update();
 		sc.draw(&cardImages, screen);
 
