@@ -247,17 +247,28 @@ public:
 		}
 	}
 	void draw(CardImage *c, SDL_Surface *screen){
-		c->selectCard(13);
+		if(numCards>0)
+			c->selectCard(13);
+		else
+			c->selectCard(14);
 		c->draw(screen,401,165);
+
 		//c->selectCard(0);
 		//c->draw(screen,308,165);
 	}
 
 	Card drawCard(){
-		Card c = deckList.front();
-		deckList.pop_front();
-		numCards--;
-		return c;
+		if(numCards>0){
+			Card c = deckList.front();
+			deckList.pop_front();
+			numCards--;
+			return c;
+		}
+		else
+			cout<<"No cards left in deck"<<endl;
+	}
+	int getNumCards(){
+		return numCards;
 	}
 };
 
@@ -318,12 +329,14 @@ public:
 	}
 
 	void drawFromDeck(Deck *d){
-		Card c = d->drawCard();
-		c.flipCard();
-		//insert(c);
-		handList.insert(handList.end(), c);
-		numCards++;
-		sortHand();
+		if(d->getNumCards()>0){
+			Card c = d->drawCard();
+			c.flipCard();
+			//insert(c);
+			handList.insert(handList.end(), c);
+			numCards++;
+			sortHand();
+		}
 	}
 	void insert(vector<Card> inCards){
 		handList.insert(handList.end(),inCards.begin(),inCards.end());
@@ -388,6 +401,9 @@ public:
 		}
 	}	
 	int getNumCards(){
+		if(numCards>=35){
+			outputHand();
+		}
 		return numCards;
 	}
 };
@@ -660,7 +676,6 @@ public:
 		if(!done){
 			x+=xvel/deltaT;
 			y+=yvel/deltaT;
-			cout<<"Elapsed: "<<deltaT<<" y-adjustment:"<<yvel/deltaT<<endl;
 		}
 		if(x<(-CARDWIDTH) || x>800 || y<(-CARDHEIGHT) || y>600){
 			done=true;
@@ -836,7 +851,7 @@ int main(int argc, char* argv[]){
 			if(event.type == SDL_MOUSEBUTTONDOWN){
 				cout<<"Click pos: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
 	
-				if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH){
+				if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH && d.getNumCards()>0){
 					p1.drawFromDeck(&d);
 					sc.reset();
 					cout<<"Drawing card from deck"<<endl;
@@ -867,7 +882,6 @@ int main(int argc, char* argv[]){
 					slide.translate(event.motion.xrel);
 					handPixelWidth = p1.getNumCardsInHand()*CARDWIDTH_WITH_OFFSET;
 					adjustment = (handPixelWidth / slide.MAX_SLIDER)*event.motion.xrel;
-					cout<<"Adjustment to window: "<<adjustment<<endl;
 					p1.translateHandView(adjustment);
 
 				}
