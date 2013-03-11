@@ -53,7 +53,7 @@ public:
 		cardSheet = SDL_ConvertSurface(image,screen->format, SDL_HWSURFACE);
 		colorKey=SDL_MapRGB(screen->format,255,0,255);
 		SDL_SetColorKey(cardSheet, SDL_SRCCOLORKEY,colorKey);
-		
+
 		SDL_FreeSurface(image);
 		if(!small){
 			src.x = OFFSET; src.y = OFFSET; src.w = CARDWIDTH; src.h = CARDHEIGHT;
@@ -148,7 +148,7 @@ public:
 	void draw(){
 		SDL_BlitSurface(bg, &src, screen, &src);
 	}
-	
+
 };
 
 
@@ -275,15 +275,20 @@ public:
 class Discard{
 	deque<Card> discardPile;
 	int numCards;
-
+	int numConsecative;
+	bool killed;
+	
 public:
 	Discard(Deck *d){
 		numCards = 0;
+		numConsecative = 0;
 		Card c = d->drawCard();
 		c.flipCard();
 		discardPile.push_front(c);
 		numCards++;
-
+		numConsecative++;
+		killed = false;
+		
 	}
 	void outputDiscard(){
 		cout<<"Outputting Discard Pile List"<<endl;
@@ -292,11 +297,99 @@ public:
 		}
 	}
 	void draw(CardImage *c, SDL_Surface *screen){
-		//c->selectCard(12);
-		//c->draw(screen,401,165);
-		Card temp = discardPile.front();
-		c->selectCard(temp.getValue());
-		c->draw(screen,308,165);
+		if( killed == false)
+		{
+			Card temp = discardPile.front();
+			c->selectCard(temp.getValue());
+			c->draw(screen,308,165);
+		}
+	}
+	void killDiscard(){
+		killed == true;
+		numConsecative = 0;
+		numCards = 0;
+		discardPile.clear(); //Clears the que by destroying every member
+	}
+	int getTopCardValue(){
+		if(!discardPile.empty())
+		{
+			Card c;
+			c = discardPile.front();
+			return c.getValue();
+		}
+		else
+		{
+			return 1; //because this is "2" and any value can be played on a 2
+		}
+	}
+	void layCardPhase(vector<Card> playCards, int numDecks=1){//Vector needs to be in the order of first card to play in the front ie) 2, 3, 3 to play the 2 before the 3's
+		if(playCards.size() == 1)//WORKS //if one card what card is it?
+			if(playCards[0].getValue() != 9)//WORKS //If the card is the special Card 10
+				if(killed == false)//All WORK
+					if(playCards[0].getValue() == getTopCardValue()){//WORKS
+						numConsecative++;
+						discardPile.push_front(playCards[0]);
+						numCards++;
+					}
+					else{//WORKS but expected check that not == values are greater
+						discardPile.push_front(playCards[0]);
+						numCards++;
+						numConsecative =0;
+					}
+				else{ //WORKS
+					discardPile.push_front(playCards[0]);
+					numCards++;
+					numConsecative++;
+					killed = false;
+				}
+			else //WORKS
+				killDiscard();
+		else //if multiple cards (assuming valid cards from selection)
+			if(playCards[0].getValue() != 9)//If the card is the special Card 10
+				if(killed == false)
+					if(playCards[0].getValue() == getTopCardValue()){//WORKS but all vector values need to be the same
+						for(int i=0; i<playCards.size(); i++)
+						{
+							numConsecative++;
+							discardPile.insert(discardPile.begin(), playCards[i]);
+							numCards++;
+						}
+					}
+					else if(playCards[0].getValue() == 1){//WORKS
+						numConsecative =0;
+						discardPile.insert(discardPile.begin(), playCards[0]);
+						for(int i=1; i<playCards.size(); i++)
+						{
+							numConsecative++;
+							discardPile.insert(discardPile.begin(), playCards[i]);
+							numCards++;
+						}
+					}
+					else{  //WORK but needs check that all are same value and greater than
+						numConsecative =0;
+						for(int i=0; i<playCards.size(); i++)
+						{
+							numConsecative++;
+							discardPile.insert(discardPile.begin(), playCards[i]);
+							numCards++;
+						}
+					}
+				else{//WORKS
+					numConsecative =0;
+					for(int i=0; i<playCards.size(); i++)
+					{
+						numConsecative++;
+						discardPile.insert(discardPile.begin(), playCards[i]);
+						numCards++;
+					}
+					killed = false;
+				}
+			else//WORKS
+				killDiscard();
+		if(numConsecative >= 4*numDecks) 
+			killDiscard();
+		if(discardPile.size() >= 1) killed = false;
+		else killed = true;
 	}
 };
 
@@ -306,7 +399,7 @@ bool compare(Card a, Card b)
 	int tempb = b.getValue();
 	if(tempa == 0) tempa = 14;
 	if(tempb == 0) tempb = 14;
-	
+
 	return (tempa > tempb);
 }
 
@@ -319,6 +412,7 @@ class Hand{
 	static const int HAND_WIDTH = 4000;
 	static const int VIEW_WINDOW_WIDTH = 630;
 	static const int VIEW_WINDOW_STEP = 45;
+
 public:
 	Hand(){
 		numCards=0;
@@ -326,6 +420,7 @@ public:
 		handSpace.x = 10; handSpace.y = 472; handSpace.h = HAND_HEIGHT; handSpace.w = VIEW_WINDOW_WIDTH;
 		viewMin = 0;
 	}
+
 	void drawFromDeck(Deck *d){
 		if(d->getNumCards()>0){
 			Card c = d->drawCard();
@@ -371,21 +466,21 @@ public:
 		int colorKey=SDL_MapRGB(screen->format,255,0,255);
 		SDL_SetColorKey(handSurface, SDL_SRCCOLORKEY,colorKey);
 		SDL_FillRect(handSurface,NULL,SDL_MapRGB(screen->format,255,0,255));
-		
+
 
 		for(int i=0;i<numCards;i++){
 			if(handList[i].isSelected()){
 				c->selectCard(handList[i].getValue(),true);
 				c->draw(handSurface, (105*i)+10, 1);
 			}
-				
+
 			else{
 				c->selectCard(handList[i].getValue());
 				c->draw(handSurface, (105*i)+10, 0);
 			}
-			
+
 		}
-		
+
 		viewWindow.x = viewMin; viewWindow.y = 0; viewWindow.w = VIEW_WINDOW_WIDTH; viewWindow.h = HAND_HEIGHT;
 		SDL_BlitSurface(handSurface, &viewWindow, screen, &handSpace);
 	}
@@ -407,15 +502,17 @@ public:
 		if(numCards>=35){
 			outputHand();
 		}
-		return numCards;
+		return numCards;//return handList.size();
 	}
-	void remove(vector<Card> inCards)
+	vector<Card> getHand()
 	{
+		return handList;
+	}
+	void remove(vector<Card> inCards){
 		for(int i=0; i<inCards.size(); i++)
 			remove(inCards[i]);
 	}
-	void remove(Card newCard)
-	{
+	void remove(Card newCard){
 		cout << "REMOVAL of : " << newCard.getValue() << endl;
 		int i = 0, l = handList.size();
 		while(l == handList.size() && i < l)//exit either when found or end of hand
@@ -459,7 +556,7 @@ public:
 		{
 			sort(boardList.begin(), boardList.end(), compare);
 		}
-			
+
 	}
 	void insert(vector<Card> inCards){
 		boardList.insert(boardList.end(),inCards.begin(),inCards.end());
@@ -552,7 +649,7 @@ public:
 		buttonSheet = SDL_ConvertSurface(image,screen->format, SDL_HWSURFACE);
 		colorKey=SDL_MapRGB(screen->format,255,0,255);
 		SDL_SetColorKey(buttonSheet, SDL_SRCCOLORKEY,colorKey);
-		
+
 		SDL_FreeSurface(image);
 
 		//row in the sprite sheet
@@ -623,9 +720,9 @@ public:
 		buttonSheet = SDL_ConvertSurface(image,screen->format, SDL_HWSURFACE);
 		colorKey=SDL_MapRGB(screen->format,255,0,255);
 		SDL_SetColorKey(buttonSheet, SDL_SRCCOLORKEY,colorKey);
-		
+
 		SDL_FreeSurface(image);
-		
+
 		if(row==0 || row==1)
 			src.y = BUTTON_HEIGHT*row+2+Y_OFFSET*row;
 		else
@@ -731,7 +828,7 @@ class Player{
 	int maxHand; //Number per hand based on deck
 	int maxBoard; //Number for board cards based on deck
 	bool main; // True if this is player 1
-		
+
 public:
 	Player(Deck &d, bool mainPlayer, int deckNum=1) //I still have to take into consideration the number of players playing
 	{
@@ -788,7 +885,7 @@ public:
 		}
 		db->draw(smallCards,screen);
 		upBoard->draw(smallCards,screen);
-		
+
 	}
 	void pickCard(int idx){
 		h.highlightCard(idx);
@@ -805,35 +902,37 @@ public:
 	void translateHandView(int offset){
 		h.translateView(offset);
 	}
-	// void play(Deck &d, Discard &dis)
-	// {
-	// }
 };
-// class Computer:public Player
-// {
-// private:
-	// Hand h; //Hidden Play Hand
-	// Board *upBoard; //Face up Board Hand Section
-	// Board *db; //Face down Board Hand section 
-	// int maxHand; //Number per hand based on deck
-	// int maxBoard; //Number for board cards based on deck
-	// bool main; // True if this is player 1
+class Computer:public Player
+{
+private:
+	Hand h; //Hidden Play Hand
+	Board *upBoard; //Face up Board Hand Section
+	Board *db; //Face down Board Hand section 
+	int maxHand; //Number per hand based on deck
+	int maxBoard; //Number for board cards based on deck
+	bool main; // True if this is player 1
 	
-// public:
-	// Computer(Deck &d, int deckNum=1)
-	// {
-		// Player::Player(d, false, deckNum);
-	// }
-	// void play(Deck &d, Discard &dis)
-	// {
-		// int i = 0;
-		// while(compare(h
+public:
+	void play(Deck &d, Discard &dis)
+	{
+		int i=0;
+		bool sp2, sp10;
+		vector<Card> ha = h.getHand();
+		while(ha[i].getValue() < dis.getTopCardValue() && i < ha.size() ) i++;
+		// if(i < ha.size())
+			// if(ha.[i].getValue() == dis.getTopCard())
+			// {
+				// dis.
+			// }
+		// else
+			// for(i=0; i<ha.size(); i++)
+				// if(ha[i].get
 		
-		// while(h.getNumCards() < maxHand)
-			// h.drawFromDeck(d);
-			
-	// }
-// };
+		while(h.getNumCards() < maxHand)
+			h.drawFromDeck(&d);
+	}
+};
 
 
 int main(int argc, char* argv[]){
@@ -854,14 +953,12 @@ int main(int argc, char* argv[]){
 	Deck d = Deck(1);
 	d.outputDeck();
 	Player p1 = Player(d,true);
-	//Computer c1 = Computer(d, false);
-
 	Player p2 = Player(d,false);
 	Discard discardPile(&d);
 	Button menuButton = Button(screen,675,530,105,55,true,2);
 	Button doneButton = Button(screen,675,470,105,55,true,1);
 	int windowMin = 0;
-	
+
 	vector<UIElement> ui;
 	ui.push_back(menuButton);
 	ui.push_back(doneButton);
@@ -876,12 +973,11 @@ int main(int argc, char* argv[]){
 
 	while(!done){
 		bg.draw();
-
 		d.draw(&cardImages,screen);
 		discardPile.draw(&cardImages, screen);
 		doneButton.draw(screen);
 		menuButton.draw(screen);
-		
+
 		ss.str("");
 		ss << "Cards: "<<p1.getNumCardsInHand();
 		bigText.setText(ss.str());
@@ -890,11 +986,11 @@ int main(int argc, char* argv[]){
 		ss << "Player 2 :  "<<p2.getNumCardsInHand()<<" cards";
 		smallText.setText(ss.str());
 		smallText.draw(screen,340,15);
-		
+
 		slide.draw(screen);
 		p1.draw(&cardImages, &smallCardImages, screen);
-		//c1.draw(&cardImages, &smallCardImages, screen);
 		p2.draw(&cardImages, &smallCardImages, screen);
+
 		sc.update();
 		sc.draw(&cardImages, screen);
 
@@ -904,7 +1000,7 @@ int main(int argc, char* argv[]){
 			}
 			if(event.type == SDL_MOUSEBUTTONDOWN){
 				cout<<"Click pos: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
-	
+
 				if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH && d.getNumCards()>0){
 					p1.drawFromDeck(&d);
 					sc.reset();
@@ -929,7 +1025,7 @@ int main(int argc, char* argv[]){
 					cout<<"Slider released"<<endl;
 					mouseDown = false;
 				}
-				
+
 			}
 			else if(event.type == SDL_MOUSEMOTION){
 				if(mouseDown == true){
