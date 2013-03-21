@@ -1,14 +1,4 @@
-#include "SDL/SDL.h"
-#include "SDL/SDL_ttf.h"
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <deque>
-#include <time.h>
-#include <vector>
-#include <algorithm>
-
-using namespace std;
+#include "../includes/includes.h"
 
 const int SCREENWIDTH = 800;
 const int SCREENHEIGHT= 600;
@@ -17,9 +7,9 @@ const int CARDWIDTH = 90;
 const int CARDWIDTH_WITH_OFFSET = 110;
 const int CARDHEIGHT_SMALL = 48;
 const int CARDWIDTH_SMALL = 37;
-string SPRITESHEET = "cardfaces.bmp";
-string BG_IMAGE = "background.bmp";
-string SPRITESHEET_S = "cardfaces_s.bmp";
+string SPRITESHEET = "../images/cardfaces.bmp";
+string BG_IMAGE = "../images/background.bmp";
+string SPRITESHEET_S = "../images/cardfaces_s.bmp";
 const int CARDSHEET_WIDTH = 564;
 
 
@@ -645,7 +635,7 @@ public:
 
 		SDL_Surface *image;
 		int colorKey;
-		image = SDL_LoadBMP("buttons.bmp");
+		image = SDL_LoadBMP("../images/buttons.bmp");
 		buttonSheet = SDL_ConvertSurface(image,screen->format, SDL_HWSURFACE);
 		colorKey=SDL_MapRGB(screen->format,255,0,255);
 		SDL_SetColorKey(buttonSheet, SDL_SRCCOLORKEY,colorKey);
@@ -716,7 +706,7 @@ public:
 
 		SDL_Surface *image;
 		int colorKey;
-		image = SDL_LoadBMP("buttons.bmp");
+		image = SDL_LoadBMP("../images/buttons.bmp");
 		buttonSheet = SDL_ConvertSurface(image,screen->format, SDL_HWSURFACE);
 		colorKey=SDL_MapRGB(screen->format,255,0,255);
 		SDL_SetColorKey(buttonSheet, SDL_SRCCOLORKEY,colorKey);
@@ -939,8 +929,8 @@ int main(int argc, char* argv[]){
 	SDL_Event event;
 	SDL_Surface *screen;
 	bool done = false;
-	TextImage bigText = TextImage("Sintony-Bold.ttf",20);
-	TextImage smallText = TextImage("Sintony-Regular.ttf",15);
+	TextImage bigText = TextImage("../fonts/Sintony-Bold.ttf",20);
+	TextImage smallText = TextImage("../fonts/Sintony-Regular.ttf",15);
 	SDL_Init( SDL_INIT_EVERYTHING );
 	screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT,16,
 								SDL_ANYFORMAT|

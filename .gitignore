@@ -1,0 +1,11 @@
+# Compiled Object Files
+.o
+
+# Elf Binary
+cards_n_stuff
+
+#Windows binary
+*.exe
+
+#ignore text files
+#*.txt
