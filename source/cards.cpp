@@ -167,7 +167,7 @@ public:
 		faceUp = facing;
 		selected=false;
 	}
-	int getValue(){
+	int getValue() const{
 		return value;
 	}
 	bool isSpecial()
@@ -312,32 +312,32 @@ public:
 			return 1; //because this is "2" and any value can be played on a 2
 		}
 	}
-	void layCardPhase(vector<Card> playCards, int numDecks=1){//Vector needs to be in the order of first card to play in the front ie) 2, 3, 3 to play the 2 before the 3's
-		if(playCards.size() == 1)//WORKS //if one card what card is it?
-			if(playCards[0].getValue() != 9)//WORKS //If the card is the special Card 10
-				if(killed == false)//All WORK
-					if(playCards[0].getValue() == getTopCardValue()){//WORKS
+	void layCardPhase(const vector<Card> &playCards, int numDecks=1){//Vector needs to be in the order of first card to play in the front ie) 2, 3, 3 to play the 2 before the 3's
+		if(playCards.size() == 1)//if one card what card is it
+			if(playCards[0].getValue() != 9)//If the card is the special Card 10
+				if(killed == false)
+					if(playCards[0].getValue() == getTopCardValue()){
 						numConsecative++;
 						discardPile.push_front(playCards[0]);
 						numCards++;
 					}
-					else{//WORKS but expected check that not == values are greater
+					else{//Expected check that for == values or greater values
 						discardPile.push_front(playCards[0]);
 						numCards++;
 						numConsecative =0;
 					}
-				else{ //WORKS
+				else{
 					discardPile.push_front(playCards[0]);
 					numCards++;
 					numConsecative++;
 					killed = false;
 				}
-			else //WORKS
+			else
 				killDiscard();
 		else //if multiple cards (assuming valid cards from selection)
 			if(playCards[0].getValue() != 9)//If the card is the special Card 10
 				if(killed == false)
-					if(playCards[0].getValue() == getTopCardValue()){//WORKS but all vector values need to be the same
+					if(playCards[0].getValue() == getTopCardValue()){//All vector values need to be the same
 						for(int i=0; i<playCards.size(); i++)
 						{
 							numConsecative++;
@@ -345,7 +345,7 @@ public:
 							numCards++;
 						}
 					}
-					else if(playCards[0].getValue() == 1){//WORKS
+					else if(playCards[0].getValue() == 1){
 						numConsecative =0;
 						discardPile.insert(discardPile.begin(), playCards[0]);
 						for(int i=1; i<playCards.size(); i++)
@@ -355,7 +355,7 @@ public:
 							numCards++;
 						}
 					}
-					else{  //WORK but needs check that all are same value and greater than
+					else{  //Needs check that all are same value or greater than
 						numConsecative =0;
 						for(int i=0; i<playCards.size(); i++)
 						{
@@ -364,7 +364,7 @@ public:
 							numCards++;
 						}
 					}
-				else{//WORKS
+				else{
 					numConsecative =0;
 					for(int i=0; i<playCards.size(); i++)
 					{
@@ -374,7 +374,7 @@ public:
 					}
 					killed = false;
 				}
-			else//WORKS
+			else
 				killDiscard();
 		if(numConsecative >= 4*numDecks) 
 			killDiscard();
