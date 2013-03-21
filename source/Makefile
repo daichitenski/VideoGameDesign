@@ -1,5 +1,5 @@
 CC=g++
-INCLUDES=
+INCLUDES=-I../includes
 CFLAGS=-O0 $(INCLUDES) -g -Wall -Wextra
 LPATHS=-L../lib/linux/
 LDFLAGS:=-lSDL -lSDL_ttf
