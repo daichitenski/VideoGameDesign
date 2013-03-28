@@ -4,6 +4,7 @@
 	#ifdef __linux__
 		#include "../includes/linux/SDL.h"
 		#include "../includes/linux/SDL_ttf.h"
+		#include "../includes/linux/SDL_mixer.h"
 	#endif
 
 	#ifdef _WIN32
