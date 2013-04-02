@@ -8,4 +8,4 @@ cards_n_stuff
 *.exe
 
 #ignore text files
-#*.txt
+*.txt
