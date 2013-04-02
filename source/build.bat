@@ -1,1 +1,1 @@
-g++ -enable-auto-import cards.cpp -o app.exe -I ../includes -L ../libraries/windows -lmingw32 -lSDLmain -lSDL -lSDL_ttf
+g++ -enable-auto-import cards.cpp -o ../libraries/cards_n_stuff.exe -I ../includes -L ../libraries -lmingw32 -lSDLmain -lSDL -lSDL_ttf

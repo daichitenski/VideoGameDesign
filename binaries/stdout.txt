@@ -1,0 +1,93 @@
+Outputting Deck List
+0 Value: 2 Special: 0  Face Down
+1 Value: 8 Special: 0  Face Down
+2 Value: 7 Special: 0  Face Down
+3 Value: 12 Special: 0  Face Down
+4 Value: 5 Special: 0  Face Down
+5 Value: 4 Special: 0  Face Down
+6 Value: 5 Special: 0  Face Down
+7 Value: 1 Special: 1  Face Down
+8 Value: 5 Special: 0  Face Down
+9 Value: 10 Special: 0  Face Down
+10 Value: 3 Special: 0  Face Down
+11 Value: 0 Special: 0  Face Down
+12 Value: 6 Special: 0  Face Down
+13 Value: 0 Special: 0  Face Down
+14 Value: 3 Special: 0  Face Down
+15 Value: 11 Special: 0  Face Down
+16 Value: 6 Special: 0  Face Down
+17 Value: 6 Special: 0  Face Down
+18 Value: 8 Special: 0  Face Down
+19 Value: 12 Special: 0  Face Down
+20 Value: 10 Special: 0  Face Down
+21 Value: 11 Special: 0  Face Down
+22 Value: 9 Special: 1  Face Down
+23 Value: 12 Special: 0  Face Down
+24 Value: 4 Special: 0  Face Down
+25 Value: 4 Special: 0  Face Down
+26 Value: 11 Special: 0  Face Down
+27 Value: 10 Special: 0  Face Down
+28 Value: 1 Special: 1  Face Down
+29 Value: 3 Special: 0  Face Down
+30 Value: 9 Special: 1  Face Down
+31 Value: 7 Special: 0  Face Down
+32 Value: 8 Special: 0  Face Down
+33 Value: 7 Special: 0  Face Down
+34 Value: 8 Special: 0  Face Down
+35 Value: 2 Special: 0  Face Down
+36 Value: 3 Special: 0  Face Down
+37 Value: 6 Special: 0  Face Down
+38 Value: 0 Special: 0  Face Down
+39 Value: 11 Special: 0  Face Down
+40 Value: 7 Special: 0  Face Down
+41 Value: 4 Special: 0  Face Down
+42 Value: 2 Special: 0  Face Down
+43 Value: 10 Special: 0  Face Down
+44 Value: 9 Special: 1  Face Down
+45 Value: 1 Special: 1  Face Down
+46 Value: 0 Special: 0  Face Down
+47 Value: 2 Special: 0  Face Down
+48 Value: 12 Special: 0  Face Down
+49 Value: 9 Special: 1  Face Down
+50 Value: 1 Special: 1  Face Down
+51 Value: 5 Special: 0  Face Down
+
+Outputting Hand with 5 cards:
+Value: 12 Special: 0  Face Up
+Value: 8 Special: 0  Face Up
+Value: 7 Special: 0  Face Up
+Value: 5 Special: 0  Face Up
+Value: 2 Special: 0  Face Up
+
+
+Outputting Board with 3 cards:
+Value: 10 Special: 0  Face Up
+Value: 4 Special: 0  Face Up
+Value: 1 Special: 1  Face Up
+
+
+Outputting Board with 3 cards:
+Value: 5 Special: 0  Face Down
+Value: 5 Special: 0  Face Down
+Value: 3 Special: 0  Face Down
+
+
+Outputting Hand with 5 cards:
+Value: 0 Special: 0  Face Up
+Value: 0 Special: 0  Face Up
+Value: 11 Special: 0  Face Up
+Value: 6 Special: 0  Face Up
+Value: 3 Special: 0  Face Up
+
+
+Outputting Board with 3 cards:
+Value: 10 Special: 0  Face Up
+Value: 8 Special: 0  Face Up
+Value: 6 Special: 0  Face Up
+
+
+Outputting Board with 3 cards:
+Value: 6 Special: 0  Face Down
+Value: 12 Special: 0  Face Down
+Value: 11 Special: 0  Face Down
+
