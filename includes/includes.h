@@ -10,6 +10,7 @@
 	#ifdef _WIN32
 		#include "../includes/windows/SDL.h"
 		#include "../includes/windows/SDL_ttf.h"
+		#include "../includes/windows/SDL_mixer.h"
 	#endif
 
 	#include <iostream>
