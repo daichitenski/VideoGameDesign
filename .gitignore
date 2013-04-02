@@ -9,3 +9,8 @@ cards_n_stuff
 
 #ignore text files
 *.txt
+
+#eclipse stuff
+.settings
+.cproject
+.project
