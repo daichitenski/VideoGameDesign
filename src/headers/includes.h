@@ -1,21 +1,9 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
-	/*
-	#ifdef __linux__
-		#include "../includes/linux/SDL.h"
-		#include "../includes/linux/SDL_ttf.h"
-		#include "../includes/linux/SDL_mixer.h"
-	#endif
-	#ifdef _WIN32
-		#include "../includes/windows/SDL.h"
-		#include "../includes/windows/SDL_ttf.h"
-		#include "../includes/windows/SDL_mixer.h"
-	#endif*/
-
-	#include "SDL.h"
-	#include "SDL_ttf.h"
-	#include "SDL_mixer.h"
+	#include "SDL/SDL.h"
+	#include "SDL/SDL_ttf.h"
+	#include "SDL/SDL_mixer.h"
 	#include <iostream>
 	#include <sstream>
 	#include <string>
