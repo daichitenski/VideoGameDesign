@@ -1,4 +1,4 @@
 set path=%~d0\mingw\bin;.;
-cd ../binaries
+cd ../bin
 cards_n_stuff.exe
 pause
