@@ -10,13 +10,13 @@ class CardImage{
 public:
 	const static int OFFSET = 10;
 	const static int OFFSET_SMALL = 3;
-	CardImage(string name, SDL_Surface *screen, bool smallCards=false){
+	void init(string name, SDL_Surface *screen, bool smallCards=false){
 		fname=name;
 		small = smallCards;
 		init(screen);
 	}
 
-	CardImage(string name, int val, SDL_Surface *screen, bool smallCards = false){
+	void init(string name, int val, SDL_Surface *screen, bool smallCards = false){
 		fname=name;
 		small = smallCards;
 		init(screen);
@@ -79,7 +79,7 @@ class TextImage{
 	string fontName;
 
 public:
-	TextImage(string fName, int size){
+	void init(string fName, int size){
 		TTF_Init();
 		fontName = fName;
 		font = TTF_OpenFont(fontName.c_str(),size);
@@ -113,7 +113,7 @@ class BackgroundImage{
 	SDL_Rect src;
 	string fname;
 public:
-	BackgroundImage(string name, SDL_Surface *s){
+	void init(string name, SDL_Surface *s){
 		fname = name;
 		screen = s;
 		init();
@@ -188,7 +188,7 @@ class Deck{
 	int numCards;
 
 public:
-	Deck(int numDecks){
+	void init(int numDecks){
 		numCards = numDecks * 52;
 		vector<int> cardList;
 
@@ -228,6 +228,7 @@ public:
 			c->selectCard(13);
 		else
 			c->selectCard(14);
+		//this is awful, our positions for stuff is all in literal values	
 		c->draw(screen,401,165);
 
 		//c->selectCard(0);
@@ -250,13 +251,13 @@ public:
 };
 
 class Discard{
-	deque<Card> discardPile;
 	int numCards;
 	int numConsecative;
 	bool killed;
 	
 public:
-	Discard(Deck *d){
+	deque<Card> discardPile;
+	void init(Deck *d){
 		numCards = 0;
 		numConsecative = 0;
 		Card c = d->drawCard();
@@ -381,7 +382,6 @@ bool compare(Card a, Card b)
 }
 
 class Hand{
-	vector<Card> handList;
 	int numCards, viewMin;
 	SDL_Surface *handSurface;
 	SDL_Rect handSpace;
@@ -391,6 +391,7 @@ class Hand{
 	static const int VIEW_WINDOW_STEP = 45;
 
 public:
+	vector<Card> handList;
 	Hand(){
 		numCards=0;
 		handSurface = SDL_CreateRGBSurface(SDL_HWSURFACE,HAND_WIDTH,HAND_HEIGHT,32,0,0,0,0);
@@ -551,8 +552,8 @@ public:
 		cout<<endl;
 	}
 
-	void draw(CardImage *c, SDL_Surface *screen){
-		if(main){
+	void draw(CardImage *c, SDL_Surface *screen, int mine, int turn){
+		if(mine == turn){
 			if(topLayer == true)
 			{
 				for(int i=0;i<numCards;i++){
@@ -616,7 +617,7 @@ public:
 	static const int MAX_SLIDER = 570;
 	static const int OFFSET = 5;
 
-	Slider(SDL_Surface *screen){
+	void init(SDL_Surface *screen){
 		xpos=0;
 		active=true;
 
@@ -641,13 +642,12 @@ public:
 
 	}
 
+		//changed this to reduce code svp
 	bool clicked(int x, int y){
-		bool answer= false;
 		if(active){
-			if(x>=xpos+40 && x<xpos+40+SLIDER_WIDTH && y>SLIDER_YPOS && y<SLIDER_YPOS+SLIDER_HEIGHT)
-				answer= true;
+			return (x>=xpos+40 && x<xpos+40+SLIDER_WIDTH && y>SLIDER_YPOS && y<SLIDER_YPOS+SLIDER_HEIGHT);
 		}
-		return answer;
+		return false;
 	}
 	void translate(int xOffset){
 		xpos+=xOffset;
@@ -684,7 +684,7 @@ public:
 	static const int BUTTON_HEIGHT = 55;
 	static const int Y_OFFSET = 2;
 	static const int X_OFFSET = 4;
-	Button(SDL_Surface *screen, int inx, int iny, int inw, int inh, bool newactive, int row){
+	void init(SDL_Surface *screen, int inx, int iny, int inw, int inh, bool newactive, int row){
 		xpos = inx;
 		ypos = iny;
 		w = inw;
@@ -756,7 +756,7 @@ class SlidingCard{
 	bool done;
 	long last;
 public:
-	SlidingCard(double xv, double yv){
+	void init(double xv, double yv){
 		x=401;
 		y=165;
 		xvel=xv;
@@ -805,10 +805,12 @@ class Player{
 	int maxHand; //Number per hand based on deck
 	int maxBoard; //Number for board cards based on deck
 	bool main; // True if this is player 1
+	int mine;
 
 public:
-	Player(Deck &d, bool mainPlayer, int deckNum=1) //I still have to take into consideration the number of players playing
+	void init(Deck &d, bool mainPlayer, int deckNum=1, int myTurn = 0) //I still have to take into consideration the number of players playing
 	{
+	mine = myTurn;
 		switch (deckNum) //Determines the number of cards to deal
 		{
 		case 1:
@@ -852,16 +854,16 @@ public:
 	void drawHand(CardImage *c, SDL_Surface *screen){
 		h.draw(c,screen);
 	}
-	void drawBoard(CardImage *c, SDL_Surface *screen){
-		db->draw(c,screen);
-		upBoard->draw(c,screen);
+	void drawBoard(CardImage *c, SDL_Surface *screen,int turn){
+		db->draw(c,screen,mine,turn);
+		upBoard->draw(c,screen, mine, turn);
 	}
-	void draw(CardImage *cards, CardImage *smallCards, SDL_Surface *screen){
-		if(main){
+	void draw(CardImage *cards, CardImage *smallCards, SDL_Surface *screen,int turn){
+		if(turn == mine){
 			h.draw(cards,screen);	
 		}
-		db->draw(smallCards,screen);
-		upBoard->draw(smallCards,screen);
+		db->draw(smallCards,screen,mine, turn);
+		upBoard->draw(smallCards,screen,mine, turn);
 
 	}
 	void pickCard(int idx){
@@ -878,6 +880,69 @@ public:
 	}
 	void translateHandView(int offset){
 		h.translateView(offset);
+	}
+	void handle_input(SDL_Event &event, bool &done, bool &mouseDown, SlidingCard &sc, Slider &slide, int &handPixelWidth, int &adjustment, Deck &d, Discard &discardPile, int &turn)
+	{
+			while(SDL_PollEvent(&event)){
+			if(event.type == SDL_QUIT){
+				done = true;
+			}
+			if(event.type == SDL_MOUSEBUTTONDOWN){
+				cout<<"Click pos: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
+
+				if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH && d.getNumCards()>0){
+					drawFromDeck(&d);
+					sc.reset();
+					cout<<"Drawing card from deck"<<endl;
+				}
+				if(slide.clicked(event.button.x,event.button.y)){
+					cout<<"Slider clicked"<<endl;
+					mouseDown = true;
+				}
+				//10,475	625,475
+				//10,880	625,880
+				if(event.button.x>10 && event.button.x<625 && event.button.y>475 && event.button.y<880){
+					cout<<"Hand Area clicked"<<endl;
+					int clickPoint = getHandViewMin()+event.button.x;
+					cout<<"Point: "<<clickPoint<<" viewMin: "<<getHandViewMin()<<" card number: "<<clickPoint/105<<endl;
+					pickCard(clickPoint/105);
+				}
+				//playcards svp
+				if(event.button.x>308 && event.button.x< (308 + CARDWIDTH) && event.button.y > 165 && event.button.y<(165 + CARDHEIGHT ))
+				{
+					vector<Card> playCards;
+					for (int i = 0; i < h.getNumCards();i++)
+					{
+						if (h.handList[i].isSelected())
+						{
+							playCards.push_back(h.handList[i]);
+							h.remove(h.handList[i]);
+							i--;
+						}
+					}
+					if (playCards.size() != 0){ discardPile.layCardPhase(playCards);
+					//this line of code doesn't scale to lots of players
+					(turn == 0) ? turn = 1: turn = 0;}
+				}
+
+			}
+			else if(event.type == SDL_MOUSEBUTTONUP){
+				if(mouseDown ==true){	
+					cout<<"Slider released"<<endl;
+					mouseDown = false;
+				}
+
+			}
+			else if(event.type == SDL_MOUSEMOTION){
+				if(mouseDown == true){
+					slide.translate(event.motion.xrel);
+					handPixelWidth = getNumCardsInHand()*CARDWIDTH_WITH_OFFSET;
+					adjustment = (handPixelWidth / slide.MAX_SLIDER)*event.motion.xrel;
+					translateHandView(adjustment);
+
+				}
+			}
+		}
 	}
 };
 class Computer:public Player
@@ -911,50 +976,93 @@ public:
 	}
 };
 
-
-int main(int argc, char* argv[]){
+class Game
+{
+private:
 	SDL_Event event;
 	SDL_Surface *screen;
-	bool done = false;
-	TextImage bigText = TextImage("../fonts/Sintony-Bold.ttf",20);
-	TextImage smallText = TextImage("../fonts/Sintony-Regular.ttf",15);
-	SDL_Init( SDL_INIT_EVERYTHING );
-	screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT,16,
-								SDL_ANYFORMAT|
-								SDL_HWSURFACE|
-								SDL_DOUBLEBUF);
-	SDL_WM_SetCaption("Lucky B", NULL);
-	BackgroundImage bg = BackgroundImage(BG_IMAGE, screen);
-	CardImage cardImages = CardImage(SPRITESHEET,screen);
-	CardImage smallCardImages = CardImage(SPRITESHEET_S, screen, true);
-	Deck d = Deck(1);
-	d.outputDeck();
-	Player p1 = Player(d,true);
-	Player p2 = Player(d,false);
-	Discard discardPile(&d);
-	Button menuButton = Button(screen,675,530,105,55,true,2);
-	Button doneButton = Button(screen,675,470,105,55,true,1);
-	int windowMin = 0;
+	bool done;
+	TextImage bigText;
+	TextImage smallText;
+	
+	
+	BackgroundImage bg;
+	CardImage cardImages;
+	CardImage smallCardImages;
+	Deck d;
+	
+	//players should be at least an array, so we can have more than 2; probably a vector
+	Player p1;
+	Player p2;
+	Discard discardPile;
+	Button menuButton;
+	Button doneButton;
+	int windowMin;
 
 	vector<UIElement> ui;
-	ui.push_back(menuButton);
-	ui.push_back(doneButton);
-	Slider slide = Slider(screen);
-	bool mouseDown = false;
+	
+	Slider slide;
+	bool mouseDown;
 	int handPixelWidth;
 	int adjustment;
 	stringstream ss;
 
 	//SlidingCard sc = SlidingCard(-1,-600);
-	SlidingCard sc = SlidingCard(200,600);
-
-	while(!done){
+	SlidingCard sc;
+	int turn;
+public:
+	
+	void init()
+	{
+		turn = 0;
+		done = false;
+		bigText.init("../fonts/Sintony-Bold.ttf",20);
+		smallText.init("../fonts/Sintony-Regular.ttf",15);
+		SDL_Init( SDL_INIT_EVERYTHING );
+		screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT,16,
+								SDL_ANYFORMAT|
+								SDL_HWSURFACE|
+								SDL_DOUBLEBUF);
+		SDL_WM_SetCaption("Lucky B", NULL);
+		 bg.init(BG_IMAGE, screen);
+		 cardImages.init(SPRITESHEET,screen);
+		 smallCardImages.init(SPRITESHEET_S, screen, true);
+		 d.init(1);
+		 d.outputDeck();
+		 p1.init(d,true, 1,0);
+		 p2.init(d,false, 1,1);
+		 discardPile.init(&d);
+		 menuButton.init(screen,675,530,105,55,true,2);
+		 doneButton.init(screen,675,470,105,55,true,1);
+		 windowMin = 0;
+		 
+		 ui.push_back(menuButton);
+		 ui.push_back(doneButton);
+		 
+		 slide.init(screen);
+		  mouseDown = false;
+		  
+		  sc.init(200,600);
+	}
+	void run()
+	{
+		while(!done){
 		bg.draw();
 		d.draw(&cardImages,screen);
 		discardPile.draw(&cardImages, screen);
 		doneButton.draw(screen);
 		menuButton.draw(screen);
 
+		
+		
+
+		slide.draw(screen);
+		p1.draw(&cardImages, &smallCardImages, screen, turn);
+		p2.draw(&cardImages, &smallCardImages, screen, turn);
+
+		sc.update();
+		sc.draw(&cardImages, screen);
+		if (turn == 0) {
 		ss.str("");
 		ss << "Cards: "<<p1.getNumCardsInHand();
 		bigText.setText(ss.str());
@@ -963,59 +1071,34 @@ int main(int argc, char* argv[]){
 		ss << "Player 2 :  "<<p2.getNumCardsInHand()<<" cards";
 		smallText.setText(ss.str());
 		smallText.draw(screen,340,15);
-
-		slide.draw(screen);
-		p1.draw(&cardImages, &smallCardImages, screen);
-		p2.draw(&cardImages, &smallCardImages, screen);
-
-		sc.update();
-		sc.draw(&cardImages, screen);
-
-		while(SDL_PollEvent(&event)){
-			if(event.type == SDL_QUIT){
-				done = true;
-			}
-			if(event.type == SDL_MOUSEBUTTONDOWN){
-				cout<<"Click pos: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
-
-				if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH && d.getNumCards()>0){
-					p1.drawFromDeck(&d);
-					sc.reset();
-					cout<<"Drawing card from deck"<<endl;
-				}
-				if(slide.clicked(event.button.x,event.button.y)){
-					cout<<"Slider clicked"<<endl;
-					mouseDown = true;
-				}
-				//10,475	625,475
-				//10,880	625,880
-				if(event.button.x>10 && event.button.x<625 && event.button.y>475 && event.button.y<880){
-					cout<<"Hand Area clicked"<<endl;
-					int clickPoint = p1.getHandViewMin()+event.button.x;
-					cout<<"Point: "<<clickPoint<<" viewMin: "<<p1.getHandViewMin()<<" card number: "<<clickPoint/105<<endl;
-					p1.pickCard(clickPoint/105);
-				}
-
-			}
-			else if(event.type == SDL_MOUSEBUTTONUP){
-				if(mouseDown ==true){	
-					cout<<"Slider released"<<endl;
-					mouseDown = false;
-				}
-
-			}
-			else if(event.type == SDL_MOUSEMOTION){
-				if(mouseDown == true){
-					slide.translate(event.motion.xrel);
-					handPixelWidth = p1.getNumCardsInHand()*CARDWIDTH_WITH_OFFSET;
-					adjustment = (handPixelWidth / slide.MAX_SLIDER)*event.motion.xrel;
-					p1.translateHandView(adjustment);
-
-				}
-			}
+		p1.handle_input(event,done,mouseDown,sc,slide,handPixelWidth,adjustment,d,discardPile,turn);
+		}
+		else if (turn == 1) 
+		{
+		ss.str("");
+		ss << "Cards: "<<p2.getNumCardsInHand();
+		bigText.setText(ss.str());
+		bigText.draw(screen, 685,420);
+		ss.str("");
+		ss << "Player 1 :  "<<p1.getNumCardsInHand()<<" cards";
+		smallText.setText(ss.str());
+		smallText.draw(screen,340,15);
+		p2.handle_input(event,done,mouseDown,sc,slide,handPixelWidth,adjustment,d,discardPile,turn);
 		}
 		SDL_Flip(screen);
+		}
 	}
-	SDL_Quit();
+	void end()
+	{
+		SDL_Quit();
+	}
+};
+
+
+int main(int argc, char* argv[]){
+		Game game;
+		game.init();
+		game.run();
+		game.end();
 	return 0;
 }
