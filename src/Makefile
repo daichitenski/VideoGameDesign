@@ -1,4 +1,4 @@
-CC=g++
+CC=g++ -std=c++0x
 INCLUDES=-I../includes
 CFLAGS=-O0 $(INCLUDES) -g -Wall -Wextra
 LPATHS=

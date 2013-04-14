@@ -128,8 +128,6 @@ public:
 
 };
 
-
-
 //Card Structures
 class Card{
 	int value;
@@ -236,14 +234,16 @@ public:
 	}
 
 	Card drawCard(){
+		Card c;
 		if(numCards>0){
-			Card c = deckList.front();
+			c = deckList.front();
 			deckList.pop_front();
 			numCards--;
 			return c;
 		}
 		else
-			cout<<"No cards left in deck"<<endl;
+			cout << "No cards left in deck" << endl;
+			return c; //RM have to return something (fixes compiler warning)
 	}
 	int getNumCards(){
 		return numCards;
@@ -283,7 +283,7 @@ public:
 		}
 	}
 	void killDiscard(){
-		killed == true;
+		//killed == true; RM  why is this here? 
 		numConsecative = 0;
 		numCards = 0;
 		discardPile.clear(); //Clears the que by destroying every member
@@ -326,7 +326,7 @@ public:
 			if(playCards[0].getValue() != 9)//If the card is the special Card 10
 				if(killed == false)
 					if(playCards[0].getValue() == getTopCardValue()){//All vector values need to be the same
-						for(int i=0; i<playCards.size(); i++)
+						for(unsigned int i=0; i<playCards.size(); i++)
 						{
 							numConsecative++;
 							discardPile.insert(discardPile.begin(), playCards[i]);
@@ -336,7 +336,7 @@ public:
 					else if(playCards[0].getValue() == 1){
 						numConsecative =0;
 						discardPile.insert(discardPile.begin(), playCards[0]);
-						for(int i=1; i<playCards.size(); i++)
+						for(unsigned int i=1; i<playCards.size(); i++)
 						{
 							numConsecative++;
 							discardPile.insert(discardPile.begin(), playCards[i]);
@@ -345,7 +345,7 @@ public:
 					}
 					else{  //Needs check that all are same value or greater than
 						numConsecative =0;
-						for(int i=0; i<playCards.size(); i++)
+						for(unsigned int i=0; i<playCards.size(); i++)
 						{
 							numConsecative++;
 							discardPile.insert(discardPile.begin(), playCards[i]);
@@ -354,7 +354,7 @@ public:
 					}
 				else{
 					numConsecative =0;
-					for(int i=0; i<playCards.size(); i++)
+					for(unsigned int i=0; i<playCards.size(); i++)
 					{
 						numConsecative++;
 						discardPile.insert(discardPile.begin(), playCards[i]);
@@ -392,7 +392,7 @@ class Hand{
 
 public:
 	vector<Card> handList;
-	Hand(){
+	Hand(){ //default constructor
 		numCards=0;
 		handSurface = SDL_CreateRGBSurface(SDL_HWSURFACE,HAND_WIDTH,HAND_HEIGHT,32,0,0,0,0);
 		handSpace.x = 10; handSpace.y = 472; handSpace.h = HAND_HEIGHT; handSpace.w = VIEW_WINDOW_WIDTH;
@@ -486,13 +486,26 @@ public:
 	{
 		return handList;
 	}
+	
+	bool isValid_Move() //returns true if the hand passed in can be played 
+	{
+		bool is_valid = false;
+		
+		return is_valid;
+	}
+	
+	int playHand()
+	{
+		return 1;
+	}
+	
 	void remove(vector<Card> inCards){
-		for(int i=0; i<inCards.size(); i++)
+		for(unsigned int i=0; i<inCards.size(); i++)
 			remove(inCards[i]);
 	}
 	void remove(Card newCard){
 		cout << "REMOVAL of : " << newCard.getValue() << endl;
-		int i = 0, l = handList.size();
+		unsigned int i = 0, l = handList.size();
 		while(l == handList.size() && i < l)//exit either when found or end of hand
 		{
 			cout << "Card # " << handList[i].getValue() << endl;
@@ -591,17 +604,9 @@ public:
 
 
 //UI Classes
-class UIElement{
+class UIElement{ //Just chilling here I don't do anything but everything else is derived from me, not quite sure why I exist.
 public:
-	bool clicked(int x, int y){
-
-	}
-	bool draw(){
-
-	}
-	void execute(){
-
-	}
+	
 };
 
 class Slider : public UIElement {
@@ -726,9 +731,9 @@ public:
 	int getH(){
 		return h;
 	}
-	bool getActive(){
+	/*bool getActive(){
 
-	}
+	}*/
 	void switchActive(){
 		active = !active;
 		if(active)
@@ -958,8 +963,8 @@ private:
 public:
 	void play(Deck &d, Discard &dis)
 	{
-		int i=0;
-		bool sp2, sp10;
+		unsigned int i=0;
+		//bool sp2, sp10; RM what are these for?
 		vector<Card> ha = h.getHand();
 		while(ha[i].getValue() < dis.getTopCardValue() && i < ha.size() ) i++;
 		// if(i < ha.size())
@@ -1095,7 +1100,7 @@ public:
 };
 
 
-int main(int argc, char* argv[]){
+int main(){ //RM removed arguements since we aren't passing any to get rid of compiler warning
 		Game game;
 		game.init();
 		game.run();
