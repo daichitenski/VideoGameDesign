@@ -1,5 +1,5 @@
-#ifndef CARD_H
-#define CARD_H
+#ifndef CARDS_H
+#define CARDS_H
 
 	#include "includes.h"
 	
@@ -10,9 +10,9 @@
 	const int CARDWIDTH_WITH_OFFSET = 110;
 	const int CARDHEIGHT_SMALL = 48;
 	const int CARDWIDTH_SMALL = 37;
-	string SPRITESHEET = "../images/cardfaces.bmp";
-	string BG_IMAGE = "../images/background.bmp";
-	string SPRITESHEET_S = "../images/cardfaces_s.bmp";
+	const string SPRITESHEET = "../images/cardfaces.bmp";
+	const string BG_IMAGE = "../images/background.bmp";
+	const string SPRITESHEET_S = "../images/cardfaces_s.bmp";
 	const int CARDSHEET_WIDTH = 564;
 
 	//Card classes will go here
