@@ -487,13 +487,6 @@ public:
 		return handList;
 	}
 	
-	bool isValid_Move() //returns true if the hand passed in can be played 
-	{
-		bool is_valid = false;
-		
-		return is_valid;
-	}
-	
 	int playHand()
 	{
 		return 1;
@@ -883,6 +876,19 @@ public:
 	int getNumCardsInHand(){
 		return h.getNumCards();
 	}
+	/*MY_STUFF*/
+	bool isValid_Move(vector<Card> player_hand, Card pile) //returns true if the hand passed in can be played 
+	{
+		cout << "Valid function test\n";
+		for(unsigned int i=0; i<player_hand.size(); i++)
+		{
+			cout << "Card " << i+1 << ": " << player_hand[i].getValue();
+		}
+		bool is_valid = false;
+		
+		return is_valid;
+	}
+
 	void translateHandView(int offset){
 		h.translateView(offset);
 	}
@@ -1100,10 +1106,10 @@ public:
 };
 
 
-int main(){ //RM removed arguements since we aren't passing any to get rid of compiler warning
-		Game game;
-		game.init();
-		game.run();
-		game.end();
+int main(int argc, char** argv){ //RM removed arguements since we aren't passing any to get rid of compiler warning
+		Game lucky_B; //why not call it what it is?
+		lucky_B.init();
+		lucky_B.run();
+		lucky_B.end();
 	return 0;
 }
