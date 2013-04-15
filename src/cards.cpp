@@ -879,13 +879,37 @@ public:
 	/*MY_STUFF*/
 	bool isValid_Move(vector<Card> player_hand, Card pile) //returns true if the hand passed in can be played 
 	{
+		bool is_valid = true;
+		unsigned int last_card = -1;
+		unsigned int this_card = player_hand[0].getValue();
+		unsigned int pile_card = pile.getValue();
 		cout << "Valid function test\n";
-		for(unsigned int i=0; i<player_hand.size(); i++)
+		if(player_hand.size() == 1)
 		{
-			cout << "Card " << i+1 << ": " << player_hand[i].getValue();
+			if((this_card == 2 || this_card == 10)) is_valid = true; //A single special card is always a valid move
+			else if(this_card > pile_card) is_valid = false; //a hand bigger then the value of the deck card is invalid 
 		}
-		bool is_valid = false;
-		
+		else
+		{
+			last_card = player_hand[0].getValue(); //save the value of the first card for comparison
+			for(unsigned int i=1; i<player_hand.size(); i++)
+			{
+				this_card = player_hand[i].getValue(); //save the value of first card
+				if(this_card == 2 || this_card == 10) is_valid = true; //card is a special playing special cards is always valid
+				else if(this_card > pile_card) //Cards greater in value then the card being pile card are not valid
+				{
+					is_valid = false;
+					break;
+				}
+				else if(this_card != last_card) //Playing 2 or more cards of different values is not a valid move
+				{
+					is_valid = false;
+					break;
+				}
+				last_card = player_hand[i].getValue(); //update last card for next iteration of loop
+			}
+			//everything else not explicitly marked invalid is valid
+		}	
 		return is_valid;
 	}
 
