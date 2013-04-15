@@ -23,4 +23,6 @@ public:
 	void toggleSelected();
 };
 
+bool compare(Card a, Card b);
+
 #endif

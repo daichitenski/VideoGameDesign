@@ -1,8 +1,10 @@
 #ifndef LUCKYB_H
 #define LUCJYB_H
 
+#include "Game.h"
 #include "Card.h"
+#include "includes.h"
 
-bool compare(Card a, Card b);
+int main(int argc, char** argv);
 
 #endif

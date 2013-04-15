@@ -1,11 +1,9 @@
 #include "headers/LuckyB.h"
 
-bool compare(Card a, Card b) 
-{
-	int tempa = a.getValue();
-	int tempb = b.getValue();
-	if(tempa == 0) tempa = 14;
-	if(tempb == 0) tempb = 14;
-
-	return (tempa > tempb);
+int main(int argc, char** argv){ //RM removed arguements since we aren't passing any to get rid of compiler warning
+		Game lucky_B; //why not call it what it is?
+		lucky_B.init();
+		lucky_B.run();
+		lucky_B.end();
+	return 0;
 }

@@ -3,7 +3,6 @@
 
 #include "Card.h"
 #include "Deck.h"
-#include "LuckyB.h"
 
 class Hand{
 	int numCards, viewMin;
