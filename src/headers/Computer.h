@@ -1,7 +1,7 @@
 #ifndef COMPUTER_H
 #define COMPUTER_H
 
-#include "player.h"
+#include "Player.h"
 #include "Hand.h"
 #include "Deck.h"
 #include "Discard.h"
