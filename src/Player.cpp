@@ -71,6 +71,40 @@
 		return h.getNumCards();
 	}
 	/*MY_STUFF*/
+	bool Player::Is_Lowest(vector<Card> test,int val)
+	{
+		for(unsigned int i=0; i<test.size(); i++) 
+		{
+			if(test[i].getValue() == 2); //continue
+			else if(test[i].getValue() > val) return false;
+		}
+		return true;
+	}
+	
+	bool Player::Validate_Two(vector<Card> test)
+	{
+		int last_card = -1;
+		int this_card = -1;
+		
+		for(unsigned int i=0; i<test.size(); i++)
+		{
+			this_card = test[i].getValue();
+			if(i == 0) last_card = test[1].getValue();
+			else
+			{
+				if(this_card != last_card) return false;
+				else if(this_card == last_card)
+				{
+					if(this_card == 2); //continue
+					else if(!Is_Lowest(test, this_card)) return false; //if the card played isn't the lowest card in the deck
+				}
+				else return false;
+			}
+			last_card = test[i].getValue();
+		}
+		return true;
+	}
+	
 	bool Player::isValid_Move(vector<Card> player_hand, Card pile) //returns true if the hand passed in can be played 
 	{
 		bool is_valid = true;
@@ -81,7 +115,7 @@
 		if(player_hand.size() == 1)
 		{
 			if((this_card == 2 || this_card == 10)) is_valid = true; //A single special card is always a valid move
-			else if(this_card > pile_card) is_valid = false; //a hand bigger then the value of the deck card is invalid 
+			else if(this_card < pile_card) is_valid = false; //a hand smaller then the value of the deck card is invalid 
 		}
 		else
 		{
@@ -89,22 +123,23 @@
 			for(unsigned int i=1; i<player_hand.size(); i++)
 			{
 				this_card = player_hand[i].getValue(); //save the value of first card
-				if(this_card == 2 || this_card == 10) is_valid = true; //card is a special playing special cards is always valid
-				else if(this_card > pile_card) //Cards greater in value then the card being pile card are not valid
+				if(this_card == 10) is_valid = true; //killzed it as long as they didn't try to play any other cards
+				else if(this_card == 2)
 				{
-					is_valid = false;
-					break;
+					if(!Validate_Two(player_hand)) return false; //any single card played after this true playing more cards after this is valid
+				}
+				else if(this_card < pile_card) //Cards greater in value then the card being pile card are not valid
+				{
+					return false;
 				}
 				else if(this_card != last_card) //Playing 2 or more cards of different values is not a valid move
 				{
-					is_valid = false;
-					break;
+					return false;
 				}
 				last_card = player_hand[i].getValue(); //update last card for next iteration of loop
-			}
-			//everything else not explicitly marked invalid is valid
+			}	
 		}	
-		return is_valid;
+		return is_valid; //if we get this far its true
 	}
 
 	void Player::translateHandView(int offset){
