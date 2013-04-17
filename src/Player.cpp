@@ -62,7 +62,8 @@
 		h.highlightCard(idx);
 	}
 	void Player::drawFromDeck(Deck *d){
-		h.drawFromDeck(d);
+		if(h.getNumCards() < maxHand)
+			h.drawFromDeck(d);
 	}
 	int Player::getHandViewMin(){
 		return h.getViewMin();
@@ -114,6 +115,7 @@
 		cout << "Valid function test\n";
 		if(player_hand.size() == 1)
 		{
+			//Christina: 2 is only valid by itself if it is the last card the player can play
 			if((this_card == 2 || this_card == 10)) is_valid = true; //A single special card is always a valid move
 			else if(this_card < pile_card) is_valid = false; //a hand smaller then the value of the deck card is invalid 
 		}
@@ -125,7 +127,7 @@
 				this_card = player_hand[i].getValue(); //save the value of first card
 				if(this_card == 10) is_valid = true; //killzed it as long as they didn't try to play any other cards
 				else if(this_card == 2)
-				{
+				{	//Christina: Valid only if the other values are 2 or at least one other value that is the smallest in the hand (unless only 2's are left for the player to play)
 					if(!Validate_Two(player_hand)) return false; //any single card played after this true playing more cards after this is valid
 				}
 				else if(this_card < pile_card) //Cards greater in value then the card being pile card are not valid
@@ -155,9 +157,12 @@
 				cout<<"Click pos: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
 
 				if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH && d.getNumCards()>0){
-					drawFromDeck(&d);
-					sc.reset();
-					cout<<"Drawing card from deck"<<endl;
+					if(h.getNumCards() < maxHand)
+					{
+						drawFromDeck(&d);
+						sc.reset();
+						cout<<"Drawing card from deck"<<endl;
+					}
 				}
 				if(slide.clicked(event.button.x,event.button.y)){
 					cout<<"Slider clicked"<<endl;

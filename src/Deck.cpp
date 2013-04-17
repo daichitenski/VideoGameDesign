@@ -1,6 +1,7 @@
 #include "headers/Deck.h"
 
 	void Deck::init(int numDecks){
+		numDecks = numDecks;
 		numCards = numDecks * 52;
 		vector<int> cardList;
 
@@ -61,4 +62,7 @@
 	}
 	int Deck::getNumCards(){
 		return numCards;
+	}
+	int Deck::getNumDecks(){
+		return numDecks;
 	}

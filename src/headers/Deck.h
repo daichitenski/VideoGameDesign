@@ -7,6 +7,7 @@
 class Deck{
 	deque<Card> deckList;
 	int numCards;
+	int numDecks;
 
 public:
 	void init(int numDecks);
@@ -14,6 +15,7 @@ public:
 	void draw(CardImage *c, SDL_Surface *screen);
 	Card drawCard();
 	int getNumCards();
+	int getNumDecks();
 };
 
 #endif
