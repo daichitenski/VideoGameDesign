@@ -15,6 +15,7 @@ public:
 	Card();
 	Card(int newVal, bool facing);
 	int getValue() const;
+	int getCardValue() const;
 	bool isSpecial();
 	bool isSelected();
 	void flipCard();

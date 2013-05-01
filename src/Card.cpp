@@ -19,6 +19,10 @@
 	int Card::getValue() const{
 		return value;
 	}
+	int Card::getCardValue() const{
+		if(value == 0) return 14;
+		return value;
+	}
 	bool Card::isSpecial(){
 		return special;
 	}

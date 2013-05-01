@@ -38,7 +38,7 @@ void Discard::init(Deck *d){
 		{
 			Card c;
 			c = discardPile.front();
-			return c.getValue();
+			return c.getCardValue();
 		}
 		else
 		{
