@@ -14,6 +14,7 @@ class Hand{
 	static const int VIEW_WINDOW_STEP = 45;
 
 public:
+	//These should really be commented
 	vector<Card> handList;
 	Hand();
 	void drawFromDeck(Deck *d);

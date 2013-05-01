@@ -74,6 +74,7 @@
 	/*MY_STUFF*/
 	bool Player::Is_Lowest(vector<Card> test,int val)
 	{
+		cout << "Is_Lowest" << endl;
 		for(unsigned int i=0; i<test.size(); i++) 
 		{
 			if(test[i].getValue() == 2); //continue
@@ -82,7 +83,7 @@
 		return true;
 	}
 	
-	bool Player::Validate_Two(vector<Card> test)
+	bool Player::Validate_Two(vector<Card> &test)
 	{
 		int last_card = -1;
 		int this_card = -1;
@@ -105,18 +106,21 @@
 		}
 		return true;
 	}
-	
-	bool Player::isValid_Move(vector<Card> player_hand, Card pile) //returns true if the hand passed in can be played 
+
+	bool Player::isValid_Move(vector<Card> &player_hand, int pile_card) //returns true if the hand passed in can be played 
 	{
+		cout << "First card played " << player_hand[0].getCardValue()+1 << " card on pile " << pile_card+1 << " First card selected " << endl;
 		bool is_valid = true;
 		unsigned int last_card = -1;
-		unsigned int this_card = player_hand[0].getValue();
-		unsigned int pile_card = pile.getValue();
-		cout << "Valid function test\n";
+		unsigned int this_card = player_hand[0].getCardValue()+1;
 		if(player_hand.size() == 1)
 		{
 			//Christina: 2 is only valid by itself if it is the last card the player can play
-			if((this_card == 2 || this_card == 10)) is_valid = true; //A single special card is always a valid move
+			if((this_card == 2 || this_card == 10))
+			{
+				cout << "Special Card\n";
+				is_valid = true; //A single special card is always a valid move
+			}
 			else if(this_card < pile_card) is_valid = false; //a hand smaller then the value of the deck card is invalid 
 		}
 		else
@@ -130,7 +134,7 @@
 				{	//Christina: Valid only if the other values are 2 or at least one other value that is the smallest in the hand (unless only 2's are left for the player to play)
 					if(!Validate_Two(player_hand)) return false; //any single card played after this true playing more cards after this is valid
 				}
-				else if(this_card < pile_card) //Cards greater in value then the card being pile card are not valid
+				else if(this_card < pile_card) //Cards greater in value then the pile card are not valid
 				{
 					return false;
 				}
@@ -157,7 +161,7 @@
 				cout<<"Click pos: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
 
 				if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH && d.getNumCards()>0){
-					if(h.getNumCards() < maxHand)
+					if(h.getNumCards() < maxHand )
 					{
 						drawFromDeck(&d);
 						sc.reset();
@@ -180,23 +184,32 @@
 				if(event.button.x>308 && event.button.x< (308 + CARDWIDTH) && event.button.y > 165 && event.button.y<(165 + CARDHEIGHT ))
 				{
 					vector<Card> playCards;
-					for (int i = 0; i < h.getNumCards();i++)
+					for (int i = 0; i < h.getNumCards();i++) //What do I do?
 					{
 						if (h.handList[i].isSelected())
 						{
 							playCards.push_back(h.handList[i]);
 							h.remove(h.handList[i]);
-							i--;
+							i--; //what is this all about?
 						}
-					}
-					if (playCards.size() != 0){ discardPile.layCardPhase(playCards);
+					}					
+					if (playCards.size() != 0 && isValid_Move(playCards, discardPile.getTopCardValue()))
+					{
+						cout << "Valid Move \n";
+						discardPile.layCardPhase(playCards);
+						(turn == 0) ? turn = 1: turn = 0;
+					} //This doesn't match the function definition in Discard.cpp wtf!?
 					//this line of code doesn't scale to lots of players
-					(turn == 0) ? turn = 1: turn = 0;}
+					else
+					{
+						cout << "invalid move \n";
+						h.insert(playCards);
+					}
 				}
 
 			}
 			else if(event.type == SDL_MOUSEBUTTONUP){
-				if(mouseDown ==true){	
+				if(mouseDown == true){	
 					cout<<"Slider released"<<endl;
 					mouseDown = false;
 				}
@@ -208,7 +221,6 @@
 					handPixelWidth = getNumCardsInHand()*CARDWIDTH_WITH_OFFSET;
 					adjustment = (handPixelWidth / slide.MAX_SLIDER)*event.motion.xrel;
 					translateHandView(adjustment);
-
 				}
 			}
 		}
