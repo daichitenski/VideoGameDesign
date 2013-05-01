@@ -11,6 +11,7 @@
 		if(d->getNumCards()>0){
 			Card c = d->drawCard();
 			c.flipCard();
+			if(c.isSelected() == true) c.toggleSelected();
 			//insert(c);
 			handList.insert(handList.end(), c);
 			numCards++;
@@ -23,6 +24,7 @@
 		sort(handList.begin(), handList.end(), compare);
 	}
 	void Hand::insert(Card newCard){
+		if(newCard.isSelected() == true) newCard.toggleSelected();
 		handList.insert(handList.end(), newCard);
 		numCards++;
 		sort(handList.begin(), handList.end(), compare);
