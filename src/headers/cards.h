@@ -12,6 +12,7 @@
 	const int CARDWIDTH_SMALL = 37;
 	const string SPRITESHEET = "../images/cardfaces.bmp";
 	const string BG_IMAGE = "../images/background.bmp";
+	const string MAIN_BG = "../images/MainMenuBackground.bmp";
 	const string SPRITESHEET_S = "../images/cardfaces_s.bmp";
 	const int CARDSHEET_WIDTH = 564;
 
