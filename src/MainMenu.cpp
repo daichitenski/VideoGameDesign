@@ -13,13 +13,9 @@ void MainMenu::setName(string newName)
 bool MainMenu::enter(SDL_Surface *newScreen)
 {
 	screen = newScreen;
-	//cout << "new screen set" << endl;
 	bg.init(MAIN_BG, screen);
-	//cout << "bg set" << endl;
-	playButton.init(screen,675,530,105,55,true,2);
-	//cout << "playbutton set" << endl;
+	playButton = Button(400, 300, 105, 55, "Menu", screen);
 	ui.push_back(playButton);
-	//cout << "ui push set" << endl;
 	return true;
 }
 
@@ -59,13 +55,22 @@ string MainMenu::handleInput()
 		else if(event.type == SDL_MOUSEBUTTONDOWN)
 		{
 			if(event.button.x > playButton.getXPos() && 
-					event.button.x < playButton.getXPos() + playButton.getW() &&
+					event.button.x < playButton.getXPos() + playButton.getWidth() &&
 					event.button.y > playButton.getYPos() &&
-					event.button.y < playButton.getYPos() + playButton.getH())
+					event.button.y < playButton.getYPos() + playButton.getHeight())
 			{
+				playButton.clicked();
 				done = true;
 				return "second";
 			}
+		}
+		else if(event.type == SDL_MOUSEBUTTONUP && 
+					event.button.x < playButton.getXPos() + playButton.getWidth() &&
+					event.button.y > playButton.getYPos() &&
+					event.button.y < playButton.getYPos() + playButton.getHeight())
+		{
+			playButton.released();
+			return "";
 		}
 	}
 	return "";

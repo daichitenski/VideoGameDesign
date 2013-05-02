@@ -20,8 +20,8 @@
 		 p1.init(d,true, 1,0);
 		 p2.init(d,false, 1,1);
 		 discardPile.init(&d);
-		 menuButton.init(screen,675,530,105,55,true,2);
-		 doneButton.init(screen,675,470,105,55,true,1);
+		 menuButton = Button(675,530,105,55,"Menu", screen);
+		 doneButton = Button(675,470,105,55,"Done", screen);
 		 windowMin = 0;
 		 
 		 ui.push_back(menuButton);
