@@ -19,7 +19,7 @@
 		}
 	}
 	void Hand::insert(vector<Card> inCards){
-		//for(int i=0; i<inCards.size(); i++) if(inCards[i].isSelected() == true) inCards[i].toggleSelected();
+		for(int i=0; i<inCards.size(); i++) if(inCards[i].isSelected() == true) inCards[i].toggleSelected();
 		handList.insert(handList.end(),inCards.begin(),inCards.end());
 		numCards += inCards.size();
 		sort(handList.begin(), handList.end(), compare);
@@ -32,6 +32,9 @@
 	}
 	void Hand::sortHand(){
 		sort(handList.begin(),handList.end(),compare);
+	}
+	void Hand::sortHandLH(){
+		sort(handList.begin(),handList.end(),compare2);
 	}
 	void Hand::outputHand(){
 		cout<<"Outputting Hand with "<<numCards<<" cards:"<<endl;

@@ -21,6 +21,7 @@ public:
 	void insert(vector<Card> inCards);
 	void insert(Card newCard);
 	void sortHand();
+	void sortHandLH();
 	void outputHand();
 	void highlightCard(int idx);
 	void draw(CardImage *c, SDL_Surface *screen);

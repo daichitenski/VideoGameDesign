@@ -25,5 +25,6 @@ public:
 };
 
 bool compare(Card a, Card b);
+bool compare2(Card a, Card b);
 
 #endif

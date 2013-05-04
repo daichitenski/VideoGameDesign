@@ -28,7 +28,7 @@ void Discard::init(Deck *d){
 		}
 	}
 	void Discard::killDiscard(){
-		//killed == true; RM  why is this here? 
+		//killed == true; //RM  why is this here? 
 		numConsecative = 0;
 		numCards = 0;
 		discardPile.clear(); //Clears the que by destroying every member
