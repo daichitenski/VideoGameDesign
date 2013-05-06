@@ -45,7 +45,7 @@ void StateBasedGame::start()
 			}
 			else if(nextStateName.size() > 0)
 			{
-				starter->exit();
+				starter->exit(nextStateName);
 				starter = states[nextStateName];
 				nextStateName = "";
 			}

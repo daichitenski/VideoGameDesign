@@ -11,25 +11,25 @@
 #include "Button.h"
 #include "Slider.h"
 #include "SlidingCard.h"
+#include "GameState.h"
 
-class Game
+class Game: public GameState
 {
 private:
 	SDL_Event event;
-	SDL_Surface *screen;
 	bool done;
 	TextImage bigText;
 	TextImage smallText;
 	
-	
 	BackgroundImage bg;
 	CardImage cardImages;
 	CardImage smallCardImages;
-	Deck d;
+	Deck deck;
 	
 	//players should be at least an array, so we can have more than 2; probably a vector
 	Player p1;
 	Player p2;
+	vector<Player> players;
 	Discard discardPile;
 	Button menuButton;
 	Button doneButton;
@@ -47,10 +47,13 @@ private:
 	SlidingCard sc;
 	int turn;
 public:
-	
-	void init();
-	void run();
-	void end();
+	Game();
+	void setName(string newName);
+	bool enter(SDL_Surface *newScreen);
+	string execute();
+	void pause(string exitStateName);
+	void exit(string exitStateName);
+	string handleInput();
 };
 
 #endif

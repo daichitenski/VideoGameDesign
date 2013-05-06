@@ -14,8 +14,9 @@ bool MainMenu::enter(SDL_Surface *newScreen)
 {
 	screen = newScreen;
 	bg.init(MAIN_BG, screen);
-	playButton = Button(400, 300, 105, 55, "Menu", screen);
+	playButton = Button(600, 400, 105, 55, "PlayButton", screen);
 	ui.push_back(playButton);
+	for(;;)
 	return true;
 }
 
@@ -38,7 +39,7 @@ void MainMenu::pause(string exitStateName)
 {
 }
 
-void MainMenu::exit()
+void MainMenu::exit(string exitStateName)
 {
 	
 }
@@ -60,8 +61,7 @@ string MainMenu::handleInput()
 					event.button.y < playButton.getYPos() + playButton.getHeight())
 			{
 				playButton.clicked();
-				done = true;
-				return "second";
+				return "";
 			}
 		}
 		else if(event.type == SDL_MOUSEBUTTONUP && 
@@ -70,7 +70,8 @@ string MainMenu::handleInput()
 					event.button.y < playButton.getYPos() + playButton.getHeight())
 		{
 			playButton.released();
-			return "";
+			done = true;
+			return "game";
 		}
 	}
 	return "";

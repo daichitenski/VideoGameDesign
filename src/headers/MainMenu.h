@@ -20,7 +20,7 @@ class MainMenu: public GameState
 		bool enter(SDL_Surface *newScreen);
 		string execute();
 		void pause(string exitStateName);
-		void exit();
+		void exit(string exitStateName);
 		string handleInput();
 };
 

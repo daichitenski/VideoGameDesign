@@ -15,7 +15,7 @@ class GameState
 		virtual bool enter(SDL_Surface *newScreen){return false;};
 		virtual string execute(){};
 		virtual void pause(string exitStateName){};
-		virtual void exit(){};
+		virtual void exit(string exitStateName){};
 		virtual string handleInput(){};
 		//virtual ~GameState(){};
 };
