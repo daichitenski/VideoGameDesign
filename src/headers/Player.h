@@ -32,9 +32,10 @@ public:
 	int getHandViewMin();
 	int getNumCardsInHand();
 	/*MY_STUFF*/
-	bool Is_Lowest(vector<Card> test, int val); //Returns true if the value passed in is the lowest card in the deck
-	bool Validate_Two(vector<Card> &test); //Validatates the conditions needed to determine if a hand containing the two special card was correctly played
-	bool isValid_Move(vector<Card> &player_hand, int pile_card); //returns true if the hand passed in can be played 
+	bool Is_Lowest(vector<Card> &test, int val); //Returns true if the value passed in is the lowest card in the deck
+	bool Is_Last(int val, int pile_card); //Returns true if the value passed into the function is the only valid move the player can make
+	bool Validate_Two(vector<Card> &test, int pile_card); //Validatates the conditions needed to determine if a hand containing the two special card was correctly played
+	bool isValid_Move(vector<Card> &player_sel, int pile_card); //returns true if the hand passed in can be played 
 	void translateHandView(int offset);
 	void handle_input(SDL_Event &event, bool &done, bool &mouseDown, SlidingCard &sc, Slider &slide, int &handPixelWidth, int &adjustment, Deck &d, Discard &discardPile, int &turn);
 };

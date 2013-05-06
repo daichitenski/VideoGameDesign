@@ -71,78 +71,107 @@
 	int Player::getNumCardsInHand(){
 		return h.getNumCards();
 	}
-	/*MY_STUFF*/
-	bool Player::Is_Lowest(vector<Card> test,int val)
+	
+	bool Player::Is_Lowest(vector<Card> &test, int val) //if val is the lowest value in the players hand return true
 	{
-		cout << "Is_Lowest" << endl;
-		for(unsigned int i=0; i<test.size(); i++) 
+		int min = 9999;
+		int this_card = -1;
+		cout << "Is_Lowest running: " << test.size() << " loops" << endl;
+		for(unsigned int i=0; i<test.size(); i++) //save the lowest value in the players hand 
 		{
-			if(test[i].getValue() == 2); //continue
-			else if(test[i].getValue() > val) return false;
+			this_card = test[i].getCardValue();
+			if(this_card < min) min = this_card; //if this card is lower then min then it is the new min
+		}
+		if(val > min)return false;
+		return true;
+	}
+	
+	bool Player::Is_Last(int val, int pile_card) //return true if the player can make no other moves then the value passed into the function
+	{
+		vector<Card> player_hand = h.getHand(); //Get the players hand
+		cout << "Is Last\n";
+		for(unsigned int i=0; i<player_hand.size(); i++)
+		{
+			if(player_hand[i].getCardValue() == 10) return false; //10s are always playable
+			else if(player_hand[i].getCardValue() < val)
+			{
+				if(player_hand[i].getCardValue() != 2) return false; //there is another valid move
+			}
 		}
 		return true;
 	}
 	
-	bool Player::Validate_Two(vector<Card> &test)
+	bool Player::Validate_Two(vector<Card> &test, int pile_card) //finish me to check that any other cards played are the lowest in players hand
 	{
 		int last_card = -1;
-		int this_card = -1;
+		int this_card = test[0].getCardValue();
+		vector<Card> player_hand = h.getHand();
+		cout << "Validate Two\n";
 		
-		for(unsigned int i=0; i<test.size(); i++)
+		if(test.size() == 1) //if they just played a single 2 and they have no other valid moves
 		{
-			this_card = test[i].getValue();
-			if(i == 0) last_card = test[1].getValue();
-			else
+			if(Is_Last(this_card, pile_card)) return true;
+			else return false;
+		}
+		else
+		{
+			for(unsigned int i=1; i<test.size(); i++)
 			{
-				if(this_card != last_card) return false;
-				else if(this_card == last_card)
+				this_card = test[i].getCardValue();
+				if(i==1)
 				{
 					if(this_card == 2); //continue
-					else if(!Is_Lowest(test, this_card)) return false; //if the card played isn't the lowest card in the deck
+					else if(Is_Last(this_card, 2));
+					{
+						if(!Is_Lowest(player_hand, this_card)) return false; //Test that the 2nd card is lowest in the players hand if isn't then this move is invalid
+					}	
 				}
-				else return false;
+				else
+				{
+					if(this_card != last_card) return false; //if they try to play more then two different cards that aren't the same the move is invalid 
+				}
+				last_card = test[i].getCardValue(); //save the value of the card for later comparison
 			}
-			last_card = test[i].getValue();
 		}
 		return true;
 	}
 
-	bool Player::isValid_Move(vector<Card> &player_hand, int pile_card) //returns true if the hand passed in can be played 
+	bool Player::isValid_Move(vector<Card> &play_sel, int pile_card) //returns true if the hand passed in can be played 
 	{
-		cout << "First card played " << player_hand[0].getCardValue()+1 << " card on pile " << pile_card+1 << " First card selected " << endl;
 		bool is_valid = true;
 		unsigned int last_card = -1;
-		unsigned int this_card = player_hand[0].getCardValue()+1;
-		if(player_hand.size() == 1)
+		unsigned int this_card = play_sel[0].getCardValue();
+		cout << "First card played " << this_card << " card on pile " << pile_card << " First card selected " << endl;
+		if(play_sel.size() == 1) //player is trying to play a single card
 		{
 			//Christina: 2 is only valid by itself if it is the last card the player can play
-			if((this_card == 2 || this_card == 10))
+			if((this_card == 10)) return true; //A single 10 is always valid
+			else if(this_card == 2) return Validate_Two(play_sel, pile_card);
+			else if(this_card < pile_card) 
 			{
-				cout << "Special Card\n";
-				is_valid = true; //A single special card is always a valid move
+				cout << "Comparing " << this_card << " with " << pile_card << endl;
+				is_valid = false; //a hand smaller then the value of the deck card is invalid
 			}
-			else if(this_card < pile_card) is_valid = false; //a hand smaller then the value of the deck card is invalid 
 		}
-		else
+		else //player is trying to play more then one card
 		{
-			last_card = player_hand[0].getValue(); //save the value of the first card for comparison
-			for(unsigned int i=1; i<player_hand.size(); i++)
-			{
-				this_card = player_hand[i].getValue(); //save the value of first card
+			cout << "Testing full hand\n";
+			for(unsigned int i=0; i<play_sel.size(); i++)
+			{	
+				this_card = play_sel[i].getCardValue(); //save the value of first card
 				if(this_card == 10) is_valid = true; //killzed it as long as they didn't try to play any other cards
-				else if(this_card == 2)
-				{	//Christina: Valid only if the other values are 2 or at least one other value that is the smallest in the hand (unless only 2's are left for the player to play)
-					if(!Validate_Two(player_hand)) return false; //any single card played after this true playing more cards after this is valid
-				}
-				else if(this_card < pile_card) //Cards greater in value then the pile card are not valid
+				else if(this_card == 2) return Validate_Two(play_sel, pile_card); //any single card played after this true playing more cards after this is valid
+				else if(this_card < pile_card) //Cards less then value then the pile card (that are not special) are not valid
 				{
+					cout << this_card << " < " << pile_card << endl;
 					return false;
 				}
-				else if(this_card != last_card) //Playing 2 or more cards of different values is not a valid move
+				else if(i > 0 && this_card != last_card) //Playing 2 or more cards of different values is not a valid move
 				{
+					cout << this_card << " != " << last_card << endl;
 					return false;
 				}
-				last_card = player_hand[i].getValue(); //update last card for next iteration of loop
+				last_card = play_sel[i].getCardValue(); //update last card for next iteration of loop
 			}	
 		}	
 		return is_valid; //if we get this far its true
@@ -176,7 +205,7 @@
 				//10,880	625,880
 				if(event.button.x>10 && event.button.x<625 && event.button.y>475 && event.button.y<880){
 					cout<<"Hand Area clicked"<<endl;
-					int clickPoint = getHandViewMin()+event.button.x;
+					int clickPoint = getHandViewMin() + event.button.x;
 					cout<<"Point: "<<clickPoint<<" viewMin: "<<getHandViewMin()<<" card number: "<<clickPoint/105<<endl;
 					pickCard(clickPoint/105);
 				}
@@ -194,6 +223,7 @@
 						}
 					}	
 					sort(playCards.begin(),playCards.end(),compare2);					
+					//card validation
 					if (playCards.size() != 0 && isValid_Move(playCards, discardPile.getTopCardValue()))
 					{
 						cout << "Valid Move \n";

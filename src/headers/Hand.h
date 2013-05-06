@@ -29,6 +29,7 @@ public:
 	int getViewMin();
 	void translateView(int offset);
 	int getNumCards();
+	int getMinVal();
 	vector<Card> getHand();
 	int playHand();
 	void remove(vector<Card> inCards);

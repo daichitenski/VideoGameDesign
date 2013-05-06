@@ -97,6 +97,17 @@
 		}
 		return numCards;//return handList.size();
 	}
+	
+	int	Hand::getMinVal() //return the 
+	{
+		int min = 9999;
+		for(unsigned int i=0; i<handList.size(); i++)
+		{
+			if(handList[i].getCardValue() < min) min = handList[i].getCardValue();
+		}
+		return min;
+	}
+
 	vector<Card> Hand::getHand()
 	{
 		return handList;

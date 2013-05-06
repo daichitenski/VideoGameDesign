@@ -19,9 +19,10 @@
 	int Card::getValue() const{
 		return value;
 	}
-	int Card::getCardValue() const{
+	int Card::getCardValue() const //return the numerical value of a playing card
+	{
 		if(value == 0) return 14;
-		return value;
+		return value + 1;
 	}
 	bool Card::isSpecial(){
 		return special;
@@ -54,16 +55,18 @@
 	bool compare(Card a, Card b){
 		int tempa = a.getValue();
 		int tempb = b.getValue();
-		if(tempa == 0) tempa = 14;
-		if(tempb == 0) tempb = 14;
+		//testing fix for aces
+		if(tempa == 0) tempa = 13;
+		if(tempb == 0) tempb = 13;
 
 		return (tempa > tempb);
 	}
 	bool compare2(Card a, Card b){
 		int tempa = a.getValue();
 		int tempb = b.getValue();
-		if(tempa == 0) tempa = 14;
-		if(tempb == 0) tempb = 14;
+		//testing fix for aces
+		if(tempa == 0) tempa = 13;
+		if(tempb == 0) tempb = 13;
 
 		return (tempa < tempb);
 	}
