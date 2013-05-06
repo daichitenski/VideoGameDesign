@@ -23,10 +23,10 @@
 		handList.insert(handList.end(),inCards.begin(),inCards.end());
 		numCards += inCards.size();
 		sort(handList.begin(), handList.end(), compare);
-		for(int i=0; i<handList.size(); i++) handList[i].setSelected(false);
+		for(int i=0; i<handList.size(); i++) handList[i].setSelect(false);
 	}
 	void Hand::insert(Card newCard){
-		newCard.setSelected(false);
+		newCard.setSelect(false);
 		handList.insert(handList.end(), newCard);
 		numCards++;
 		sort(handList.begin(), handList.end(), compare);
