@@ -22,6 +22,7 @@ public:
 	void setFacing(bool newFacing);
 	void outputCard();
 	void toggleSelected();
+	void Card::setSelect(bool a);
 };
 
 bool compare(Card a, Card b);

@@ -192,7 +192,8 @@
 							h.remove(h.handList[i]);
 							i--; //what is this all about?
 						}
-					}					
+					}	
+					sort(playCards.begin(),playCards.end(),compare2);					
 					if (playCards.size() != 0 && isValid_Move(playCards, discardPile.getTopCardValue()))
 					{
 						cout << "Valid Move \n";

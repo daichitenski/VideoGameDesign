@@ -19,13 +19,14 @@
 		}
 	}
 	void Hand::insert(vector<Card> inCards){
-		for(int i=0; i<inCards.size(); i++) if(inCards[i].isSelected() == true) inCards[i].toggleSelected();
+		//for(int i=0; i<inCards.size(); i++) if(inCards[i].isSelected() == true) inCards[i].toggleSelected();
 		handList.insert(handList.end(),inCards.begin(),inCards.end());
 		numCards += inCards.size();
 		sort(handList.begin(), handList.end(), compare);
+		for(int i=0; i<handList.size(); i++) handList[i].setSelected(false);
 	}
 	void Hand::insert(Card newCard){
-		if(newCard.isSelected() == true) newCard.toggleSelected();
+		newCard.setSelected(false);
 		handList.insert(handList.end(), newCard);
 		numCards++;
 		sort(handList.begin(), handList.end(), compare);

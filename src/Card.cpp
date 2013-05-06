@@ -46,6 +46,10 @@
 	void Card::toggleSelected(){
 		selected = !selected;
 	}
+	void Card::setSelect(bool a)
+	{
+		selected = a;
+	}
 	
 	bool compare(Card a, Card b){
 		int tempa = a.getValue();
