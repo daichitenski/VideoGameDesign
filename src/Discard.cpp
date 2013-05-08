@@ -26,9 +26,14 @@ void Discard::init(Deck *d){
 			c->selectCard(temp.getValue());
 			c->draw(screen,308,165);
 		}
+		else
+		{
+			c->selectCard(1);
+			c->draw(screen,308,165);
+		}
 	}
 	void Discard::killDiscard(){
-		//killed == true; //RM  why is this here? 
+		killed == true; //RM because nothing should be displayed for the pile
 		numConsecative = 0;
 		numCards = 0;
 		discardPile.clear(); //Clears the que by destroying every member

@@ -18,12 +18,25 @@
 			sortHand();
 		}
 	}
+	void Hand::pickUpPile(deque<Card> d)
+	{
+		for(int i=0; i < d.size(); i++)
+		{
+			handList.insert(handList.end(), d[i]);
+			numCards++;
+		}
+		sort(handList.begin(), handList.end(), compare);		
+	}
+	void Hand::unSelectAll()
+	{
+		for(int i=0; i<=handList.size(); i++) handList[i].setSelect(false);
+	}
 	void Hand::insert(vector<Card> inCards){
-		//for(int i=0; i<inCards.size(); i++) if(inCards[i].isSelected() == true) inCards[i].toggleSelected();
+		//for(int i=0; i<inCards.size(); i++) inCards[i].setSelect(false);
 		handList.insert(handList.end(),inCards.begin(),inCards.end());
 		numCards += inCards.size();
 		sort(handList.begin(), handList.end(), compare);
-		for(int i=0; i<handList.size(); i++) handList[i].setSelect(false);
+		unSelectAll();
 	}
 	void Hand::insert(Card newCard){
 		newCard.setSelect(false);

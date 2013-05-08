@@ -12,7 +12,7 @@ public:
 	void draw(SDL_Surface *screen);
 	void clicked();
 	void released();
-	bool active = false;
+	bool active;
 	
 /*	void init(SDL_Surface *screen, int inx, int iny, int inw, int inh, bool newactive, int row);
 	void draw(SDL_Surface *s);

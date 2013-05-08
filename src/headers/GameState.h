@@ -8,9 +8,10 @@ class GameState
 	protected:
 		SDL_Surface *screen;
 		std::string name;
-		bool done = false;
+		bool done;
 	
 	public:
+		GameState(){done = false;};
 		string getName(){return name;};
 		virtual bool enter(SDL_Surface *newScreen){return false;};
 		virtual string execute(){};

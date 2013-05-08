@@ -3,6 +3,7 @@
 
 #include "Card.h"
 #include "Deck.h"
+#include "Discard.h"
 
 class Hand{
 	int numCards, viewMin;
@@ -18,6 +19,8 @@ public:
 	vector<Card> handList;
 	Hand();
 	void drawFromDeck(Deck *d);
+	void pickUpPile(deque<Card> d);
+	void unSelectAll();
 	void insert(vector<Card> inCards);
 	void insert(Card newCard);
 	void sortHand();

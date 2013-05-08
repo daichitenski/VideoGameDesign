@@ -6,6 +6,7 @@ Button::Button(int newX, int newY, int newWidth, int newHeight, string spriteNam
 	posY = newY;
 	width = newWidth;
 	height = newHeight;
+	active = false;
 	
 	SDL_Surface *image;
 	int colorKey;

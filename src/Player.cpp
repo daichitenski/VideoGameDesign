@@ -222,12 +222,13 @@
 							i--; //what is this all about?
 						}
 					}	
-					sort(playCards.begin(),playCards.end(),compare2);					
+					sort(playCards.begin(),playCards.end(),compare2);	//Sorts Low to High				
 					//card validation
 					if (playCards.size() != 0 && isValid_Move(playCards, discardPile.getTopCardValue()))
 					{
 						cout << "Valid Move \n";
 						discardPile.layCardPhase(playCards);
+						h.unSelectAll();
 						(turn == 0) ? turn = 1: turn = 0;
 					} //This doesn't match the function definition in Discard.cpp wtf!?
 					//this line of code doesn't scale to lots of players
@@ -237,7 +238,15 @@
 						h.insert(playCards);
 					}
 				}
-
+				//675,470,105,55
+				if(event.button.x>675 && event.button.x<780 && event.button.y>470 && event.button.y<525)
+				{
+					h.pickUpPile(discardPile.discardPile);
+					discardPile.killDiscard();
+					h.unSelectAll();
+					//discardPile.draw();
+					(turn == 0) ? turn = 1: turn = 0;
+				}
 			}
 			else if(event.type == SDL_MOUSEBUTTONUP){
 				if(mouseDown == true){	
