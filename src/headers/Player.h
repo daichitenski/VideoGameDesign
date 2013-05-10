@@ -30,6 +30,9 @@ public:
 	void pickCard(int idx);
 	void drawFromDeck(Deck *d);
 	int getHandViewMin();
+	Hand* getHand();
+	int getMaxHand();
+	int getMaxBoard();
 	int getNumCardsInHand();
 	/*MY_STUFF*/
 	bool Is_Lowest(vector<Card> &test, int val); //Returns true if the value passed in is the lowest card in the deck
@@ -37,7 +40,6 @@ public:
 	bool Validate_Two(vector<Card> &test, int pile_card); //Validatates the conditions needed to determine if a hand containing the two special card was correctly played
 	bool isValid_Move(vector<Card> &player_sel, int pile_card); //returns true if the hand passed in can be played 
 	void translateHandView(int offset);
-	void handle_input(SDL_Event &event, bool &done, bool &mouseDown, SlidingCard &sc, Slider &slide, int &handPixelWidth, int &adjustment, Deck &d, Discard &discardPile, int &turn);
 };
 
 #endif

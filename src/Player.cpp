@@ -68,6 +68,15 @@
 	int Player::getHandViewMin(){
 		return h.getViewMin();
 	}
+	Hand* Player::getHand(){
+		return &h;
+	}
+	int Player::getMaxHand(){
+		return maxHand;
+	}
+	int Player::getMaxBoard(){
+		return maxBoard;
+	}
 	int Player::getNumCardsInHand(){
 		return h.getNumCards();
 	}
@@ -179,89 +188,4 @@
 
 	void Player::translateHandView(int offset){
 		h.translateView(offset);
-	}
-	void Player::handle_input(SDL_Event &event, bool &done, bool &mouseDown, SlidingCard &sc, Slider &slide, int &handPixelWidth, int &adjustment, Deck &d, Discard &discardPile, int &turn)
-	{
-			while(SDL_PollEvent(&event)){
-			if(event.type == SDL_QUIT){
-				done = true;
-			}
-			if(event.type == SDL_MOUSEBUTTONDOWN){
-				cout<<"Click pos: ("<<event.button.x<<", "<<event.button.y<<")"<<endl;
-
-				if(event.button.x > 401 && event.button.x < 401+CARDHEIGHT && event.button.y > 165 && event.button.y <165+CARDWIDTH && d.getNumCards()>0){
-					if(h.getNumCards() < maxHand )
-					{
-						drawFromDeck(&d);
-						sc.reset();
-						cout<<"Drawing card from deck"<<endl;
-					}
-				}
-				if(slide.clicked(event.button.x,event.button.y)){
-					cout<<"Slider clicked"<<endl;
-					mouseDown = true;
-				}
-				//10,475	625,475
-				//10,880	625,880
-				if(event.button.x>10 && event.button.x<625 && event.button.y>475 && event.button.y<880){
-					cout<<"Hand Area clicked"<<endl;
-					int clickPoint = getHandViewMin() + event.button.x;
-					cout<<"Point: "<<clickPoint<<" viewMin: "<<getHandViewMin()<<" card number: "<<clickPoint/105<<endl;
-					pickCard(clickPoint/105);
-				}
-				//playcards svp
-				if(event.button.x>308 && event.button.x< (308 + CARDWIDTH) && event.button.y > 165 && event.button.y<(165 + CARDHEIGHT ))
-				{
-					vector<Card> playCards;
-					for (int i = 0; i < h.getNumCards();i++) //What do I do?
-					{
-						if (h.handList[i].isSelected())
-						{
-							playCards.push_back(h.handList[i]);
-							h.remove(h.handList[i]);
-							i--; //what is this all about?
-						}
-					}	
-					sort(playCards.begin(),playCards.end(),compare2);	//Sorts Low to High				
-					//card validation
-					if (playCards.size() != 0 && isValid_Move(playCards, discardPile.getTopCardValue()))
-					{
-						cout << "Valid Move \n";
-						discardPile.layCardPhase(playCards);
-						h.unSelectAll();
-						(turn == 0) ? turn = 1: turn = 0;
-					} //This doesn't match the function definition in Discard.cpp wtf!?
-					//this line of code doesn't scale to lots of players
-					else
-					{
-						cout << "invalid move \n";
-						h.insert(playCards);
-					}
-				}
-				//675,470,105,55
-				if(event.button.x>675 && event.button.x<780 && event.button.y>470 && event.button.y<525)
-				{
-					h.pickUpPile(discardPile.discardPile);
-					discardPile.killDiscard();
-					h.unSelectAll();
-					//discardPile.draw();
-					(turn == 0) ? turn = 1: turn = 0;
-				}
-			}
-			else if(event.type == SDL_MOUSEBUTTONUP){
-				if(mouseDown == true){	
-					cout<<"Slider released"<<endl;
-					mouseDown = false;
-				}
-
-			}
-			else if(event.type == SDL_MOUSEMOTION){
-				if(mouseDown == true){
-					slide.translate(event.motion.xrel);
-					handPixelWidth = getNumCardsInHand()*CARDWIDTH_WITH_OFFSET;
-					adjustment = (handPixelWidth / slide.MAX_SLIDER)*event.motion.xrel;
-					translateHandView(adjustment);
-				}
-			}
-		}
 	}

@@ -14,7 +14,7 @@ bool MainMenu::enter(SDL_Surface *newScreen)
 {
 	screen = newScreen;
 	bg.init(MAIN_BG, screen);
-	playButton = Button(600, 400, 105, 55, "PlayButton", screen);
+	playButton = Button(600, 200, 105, 55, "PlayButton", screen);
 	ui.push_back(playButton);
 	for(;;)
 	return true;
