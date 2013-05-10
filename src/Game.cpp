@@ -87,7 +87,6 @@ string Game::execute()
 		smallText.draw(screen,340,15);
 		}
 		exitStateName = handleInput();
-		cout << "after event checking" << endl;
 		SDL_Flip(screen);
 	}
 	return exitStateName;
@@ -159,7 +158,10 @@ string Game::handleInput()
 					players[turn].getHand()->insert(playCards);
 				}
 			}
-			if(event.button.x>675 && event.button.x<780 && event.button.y>470 && event.button.y<525)
+			if(event.button.x>doneButton.getXPos() && 
+					event.button.x<doneButton.getXPos() + doneButton.getWidth() && 
+					event.button.y>doneButton.getYPos() && 
+					event.button.y<doneButton.getYPos() + doneButton.getHeight())
 			{
 				doneButton.clicked();
 			}
@@ -170,13 +172,15 @@ string Game::handleInput()
 				cout<<"Slider released"<<endl;
 				mouseDown = false;
 			}
-			else if(event.button.x>675 && event.button.x<780 && event.button.y>470 && event.button.y<525)
+			else if(event.button.x>doneButton.getXPos() && 
+					event.button.x<doneButton.getXPos() + doneButton.getWidth() && 
+					event.button.y>doneButton.getYPos() && 
+					event.button.y<doneButton.getYPos() + doneButton.getHeight())
 			{
 				doneButton.released();
 				players[turn].getHand()->pickUpPile(discardPile.discardPile);
 				discardPile.killDiscard();
 				players[turn].getHand()->unSelectAll();
-				//discardPile.draw();
 				(turn == 0) ? turn = 1: turn = 0;
 			}
 
