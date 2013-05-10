@@ -159,22 +159,25 @@ string Game::handleInput()
 					players[turn].getHand()->insert(playCards);
 				}
 			}
-			
-			else if(event.button.x>675 && event.button.x<780 && event.button.y>470 && event.button.y<525)
+			if(event.button.x>675 && event.button.x<780 && event.button.y>470 && event.button.y<525)
 			{
-				players[turn].getHand()->pickUpPile(discardPile.discardPile);
-				discardPile.killDiscard();
-				players[turn].getHand()->unSelectAll();
-				//discardPile.draw();
-				(turn == 0) ? turn = 1: turn = 0;
+				doneButton.clicked();
 			}
-
 		}
 		
 		else if(event.type == SDL_MOUSEBUTTONUP){
 			if(mouseDown == true){	
 				cout<<"Slider released"<<endl;
 				mouseDown = false;
+			}
+			else if(event.button.x>675 && event.button.x<780 && event.button.y>470 && event.button.y<525)
+			{
+				doneButton.released();
+				players[turn].getHand()->pickUpPile(discardPile.discardPile);
+				discardPile.killDiscard();
+				players[turn].getHand()->unSelectAll();
+				//discardPile.draw();
+				(turn == 0) ? turn = 1: turn = 0;
 			}
 
 		}
