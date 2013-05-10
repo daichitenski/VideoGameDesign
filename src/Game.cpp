@@ -85,6 +85,7 @@ string Game::execute()
 		}
 		SDL_Flip(screen);
 	}
+	return "EXIT";
 }
 
 void Game::pause(string exitStateName){};
