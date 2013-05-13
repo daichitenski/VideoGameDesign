@@ -188,7 +188,7 @@
 				return true;
 			}
 
-			bool Player::isValid_Move(vector<Card> &play_sel, int pile_card) //returns true if the hand passed in can be played 
+			bool Player::isValid_Move(vector<Card> &play_sel, int pile_card, bool playFromHand) //returns true if the hand passed in can be played 
 			{ //not calling validate two when it should when playing multiple cards
 				bool is_valid = false;
 				unsigned int last_card = -1;
@@ -248,6 +248,7 @@
 					cout << "Done\n";	
 				}	
 				return true; //if we get this far its true
+				
 			}
 
 	void Player::translateHandView(int offset){

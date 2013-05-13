@@ -152,7 +152,7 @@ string Game::handleInput()
 					}
 				}	
 			if (playCards.size() != 0){
-				if (players[turn].isValid_Move(playCards, discardPile.getTopCardValue()))
+				if (players[turn].isValid_Move(playCards, discardPile.getTopCardValue(),true))
 				{
 					cout << "Valid Move \n";
 					discardPile.layCardPhase(playCards);
@@ -165,20 +165,25 @@ string Game::handleInput()
 					players[turn].getHand()->insert(playCards);
 				}
 				}
-			else if (players[turn].getNumCardsInHand() == 0 && getNumCardsInDeck() == 0 && !players[turn].upBoardIsEmpty())
+			else if (/*players[turn].getNumCardsInHand() == 0 && getNumCardsInDeck() == 0 && */!players[turn].upBoardIsEmpty())
 				{
 					for (int i=0;i<players[turn].upBoard->boardList.size();i++)
 						{
 							if(players[turn].upBoard->boardList[i].isSelected())
 								{
+									cout << "adding cardds to playlist" << endl;
 									playCards.push_back(players[turn].upBoard->boardList[i]);
 									players[turn].upBoard->boardList.erase(players[turn].upBoard->boardList.begin()+i);
+									players[turn].upBoard->numCards--;
+									i--;
 								}
 						}
-					if (players[turn].isValid_Move(playCards, discardPile.getTopCardValue()))
+					if (playCards.size() != 0 && players[turn].isValid_Move(playCards, discardPile.getTopCardValue(),false))
 					{
 						cout << "Valid Move \n";
+						cout << playCards[0].getCardValue() << endl;
 						discardPile.layCardPhase(playCards);
+						cout << "lay card phase passed" << endl;
 						(turn == 0) ? turn = 1: turn = 0;
 					} 
 					else
@@ -187,7 +192,7 @@ string Game::handleInput()
 						players[turn].upBoard->insert(playCards);
 					}
 				}
-			else if (players[turn].getNumCardsInHand() == 0 && getNumCardsInDeck() == 0 && players[turn].upBoardIsEmpty() && !players[turn].downBoardIsEmpty())
+			else if (/*players[turn].getNumCardsInHand() == 0 && getNumCardsInDeck() == 0 && */players[turn].upBoardIsEmpty() && !players[turn].downBoardIsEmpty())
 				{
 					for (int i=0;i<players[turn].db->boardList.size();i++)
 						{
@@ -195,9 +200,11 @@ string Game::handleInput()
 								{
 									playCards.push_back(players[turn].db->boardList[i]);
 									players[turn].db->boardList.erase(players[turn].db->boardList.begin()+i);
+									players[turn].db->numCards--;
+									i--;
 								}
 						}
-					if (players[turn].isValid_Move(playCards, discardPile.getTopCardValue()))
+					if (playCards.size() != 0 && players[turn].isValid_Move(playCards, discardPile.getTopCardValue(),false))
 					{
 						cout << "Valid Move \n";
 						discardPile.layCardPhase(playCards);
@@ -209,17 +216,36 @@ string Game::handleInput()
 						players[turn].db->insert(playCards);
 					}
 				}
-				for (int i=0;i<2;i++)
-				{
+				}
+				for (int i=0;i<=2;i++){
 				if(event.button.x>(320 + i*48) && event.button.x< (320 + CARDWIDTH_SMALL + i*48) && event.button.y > 350 && event.button.y<(350 + CARDHEIGHT_SMALL ))
 				{
+					cout << "Board " << (i + 1) << "clicked" << endl;
 					players[turn].upBoard->boardList[i].toggleSelected();
 				}
-				if(event.button.x>(340 + i*48) && event.button.x< (340 + CARDWIDTH_SMALL + i*48) && event.button.y > 320 && event.button.y<(320 + CARDHEIGHT_SMALL ))
+				else if(event.button.x>(340 + i*48) && event.button.x< (340 + CARDWIDTH_SMALL + i*48) && event.button.y > 320 && event.button.y<(320 + CARDHEIGHT_SMALL ))
 				{
+					cout << "Down Board " << (i +1) << "clicked" << endl;
 					players[turn].db->boardList[i].toggleSelected();
+				}}/*
+				else if(event.button.x>(320 + 1*48) && event.button.x< (320 + CARDWIDTH_SMALL + 1*48) && event.button.y > 350 && event.button.y<(350 + CARDHEIGHT_SMALL ))
+				{
+					cout << "Board " << (1 + 1) << "clicked" << endl;
+					players[turn].upBoard->boardList[1].toggleSelected();
 				}
+				else if(event.button.x>(340 + 1*48) && event.button.x< (340 + CARDWIDTH_SMALL + 1*48) && event.button.y > 320 && event.button.y<(320 + CARDHEIGHT_SMALL ))
+				{
+					players[turn].db->boardList[1].toggleSelected();
 				}
+				else if(event.button.x>(320 + 2*48) && event.button.x< (320 + CARDWIDTH_SMALL + 2*48) && event.button.y > 350 && event.button.y<(350 + CARDHEIGHT_SMALL ))
+				{
+					cout << "Board " << (1 + 1) << "clicked" << endl;
+					players[turn].upBoard->boardList[2].toggleSelected();
+				}
+				else if(event.button.x>(340 + 2*48) && event.button.x< (340 + CARDWIDTH_SMALL + 2*48) && event.button.y > 320 && event.button.y<(320 + CARDHEIGHT_SMALL ))
+				{
+					players[turn].db->boardList[2].toggleSelected();
+				}*/
 			}
 			if(event.button.x>doneButton.getXPos() && 
 					event.button.x<doneButton.getXPos() + doneButton.getWidth() && 
@@ -228,7 +254,7 @@ string Game::handleInput()
 			{
 				doneButton.clicked();
 			}
-		}
+		
 		
 		else if(event.type == SDL_MOUSEBUTTONUP){
 			if(mouseDown == true){	

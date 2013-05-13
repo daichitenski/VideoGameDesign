@@ -8,9 +8,9 @@ class Board // The Board Hand Class
 {
 private:
 	bool topLayer, main;
-	int numCards;
-
+	
 public:
+	int numCards;
 	vector<Card> boardList;
 	Board(bool m);
 	void drawFromDeck(Deck *d, bool up);
