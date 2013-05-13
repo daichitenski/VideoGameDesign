@@ -3,7 +3,7 @@ INCLUDES=-I../includes
 CFLAGS=-O0 $(INCLUDES) -g -Wall -Wextra
 LPATHS=
 LDFLAGS:=-lSDL -lSDL_mixer -lSDL_ttf
-SOURCES=BackgroundImage.cpp Board.cpp Button.cpp Card.cpp CardImage.cpp Computer.cpp Deck.cpp Discard.cpp Game.cpp Hand.cpp LuckyB.cpp Player.cpp Slider.cpp SlidingCard.cpp sound.cpp TextImage.cpp
+SOURCES=BackgroundImage.cpp Board.cpp Button.cpp Card.cpp CardImage.cpp Computer.cpp Deck.cpp Discard.cpp Game.cpp Hand.cpp LuckyB.cpp MainMenu.cpp Player.cpp Slider.cpp SlidingCard.cpp sound.cpp StateBasedGame.cpp TextImage.cpp
 OBJECTS=$(SOURCES:.c=.o)
 BINARY=cards_n_stuff
 

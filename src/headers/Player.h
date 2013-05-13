@@ -36,8 +36,8 @@ public:
 	int getNumCardsInHand();
 	bool upBoardIsEmpty();
 	bool downBoardIsEmpty();
-	/*MY_STUFF*/
 	bool Is_Lowest(vector<Card> &test, int val); //Returns true if the value passed in is the lowest card in the deck
+	bool Is_Lowest_Beat(vector<Card> &test, int pile_card, int val);
 	bool Is_Last(int val, int pile_card); //Returns true if the value passed into the function is the only valid move the player can make
 	bool Validate_Two(vector<Card> &test, int pile_card); //Validatates the conditions needed to determine if a hand containing the two special card was correctly played
 	bool isValid_Move(vector<Card> &player_sel, int pile_card); //returns true if the hand passed in can be played 
