@@ -1,5 +1,6 @@
 #include "headers/Discard.h"
 
+
 void Discard::init(Deck *d){
 		numCards = 0;
 		numConsecative = 0;
@@ -20,7 +21,7 @@ void Discard::init(Deck *d){
 		}
 	}
 	void Discard::draw(CardImage *c, SDL_Surface *screen){
-		if( killed == false)
+		if(killed == false && discardPile.empty() == false)
 		{
 			Card temp = discardPile.front();
 			c->selectCard(temp.getValue());
@@ -46,71 +47,101 @@ void Discard::init(Deck *d){
 		}
 	}
 	void Discard::layCardPhase(const vector<Card> &playCards, int numDecks){//Vector needs to be in the order of first card to play in the front ie) 2, 3, 3 to play the 2 before the 3's
-		if(playCards.size() == 1)//if one card what card is it
-			if(playCards[0].getValue() != 9)//If the card is the special Card 10
-				if(killed == false)
-					if(playCards[0].getValue() == getTopCardValue()){
-						numConsecative++;
-						discardPile.push_front(playCards[0]);
-						numCards++;
-					}
-					else{//Expected check that for == values or greater values
-						discardPile.push_front(playCards[0]);
-						numCards++;
-						numConsecative =0;
-					}
-				else{
-					discardPile.push_front(playCards[0]);
-					numCards++;
-					numConsecative++;
-					killed = false;
-				}
+		vector<Card> spCards2, spCards10, nonSpCards;
+		int top = getTopCardValue();
+		for(int i = 0; i < playCards.size(); i++)
+		{
+			if(playCards[i].getValue() == 1) spCards2.insert(spCards2.end(),playCards[i]);
+			else if(playCards[i].getValue() == 9) spCards10.insert(spCards10.end(),playCards[i]);
+			else nonSpCards.insert(nonSpCards.end(),playCards[i]);
+		}
+		
+		if(spCards2.empty() == false)
+		{
+			for(int i=0; i<spCards2.size(); i++)
+				discardPile.insert(discardPile.begin(), spCards2[i]);
+			numConsecative =0;
+			numCards += spCards2.size();
+			killed = false;
+		}
+		if(nonSpCards.empty() != true) 
+		{
+			if(nonSpCards[0].getCardValue() == top)
+				numConsecative += nonSpCards.size();
 			else
-				killDiscard();
-		else //if multiple cards (assuming valid cards from selection)
-			if(playCards[0].getValue() != 9)//If the card is the special Card 10
-				if(killed == false)
-					if(playCards[0].getValue() == getTopCardValue()){//All vector values need to be the same
-						for(unsigned int i=0; i<playCards.size(); i++)
-						{
-							numConsecative++;
-							discardPile.insert(discardPile.begin(), playCards[i]);
-							numCards++;
-						}
-					}
-					else if(playCards[0].getValue() == 1){
-						numConsecative =0;
-						discardPile.insert(discardPile.begin(), playCards[0]);
-						for(unsigned int i=1; i<playCards.size(); i++)
-						{
-							numConsecative++;
-							discardPile.insert(discardPile.begin(), playCards[i]);
-							numCards++;
-						}
-					}
-					else{  //Needs check that all are same value or greater than
-						numConsecative =0;
-						for(unsigned int i=0; i<playCards.size(); i++)
-						{
-							numConsecative++;
-							discardPile.insert(discardPile.begin(), playCards[i]);
-							numCards++;
-						}
-					}
-				else{
-					numConsecative =0;
-					for(unsigned int i=0; i<playCards.size(); i++)
-					{
-						numConsecative++;
-						discardPile.insert(discardPile.begin(), playCards[i]);
-						numCards++;
-					}
-					killed = false;
-				}
-			else
-				killDiscard();
-		if(numConsecative >= 4*numDecks) 
+				numConsecative = nonSpCards.size();
+			numCards += nonSpCards.size();
+			for(int i=0; i<nonSpCards.size(); i++)
+				discardPile.insert(discardPile.begin(), nonSpCards[i]);
+				killed = false;
+		}
+		if(spCards10.empty() == false || numConsecative >= 4*numDecks)
 			killDiscard();
-		if(discardPile.size() >= 1) killed = false;
-		else killed = true;
+		// if(playCards.size() == 1)//if one card what card is it
+			// if(playCards[0].getValue() != 9)//If the card is the special Card 10
+				// if(killed == false)
+					// if(playCards[0].getValue() == getTopCardValue()){
+						// numConsecative++;
+						// discardPile.push_front(playCards[0]);
+						// numCards++;
+					// }
+					// else{//Expected check that for == values or greater values
+						// discardPile.push_front(playCards[0]);
+						// numCards++;
+						// numConsecative =0;
+					// }
+				// else{
+					// discardPile.push_front(playCards[0]);
+					// numCards++;
+					// numConsecative++;
+					// killed = false;
+				// }
+			// else
+				// killDiscard();
+		// else //if multiple cards (assuming valid cards from selection)
+			// if(playCards[0].getValue() != 9)//If the card is the special Card 10
+				// if(killed == false)
+					// if(playCards[0].getValue() == getTopCardValue()){//All vector values need to be the same
+						// for(unsigned int i=0; i<playCards.size(); i++)
+						// {
+							// numConsecative++;
+							// discardPile.insert(discardPile.begin(), playCards[i]);
+							// numCards++;
+						// }
+					// }
+					// else if(playCards[0].getValue() == 1){
+						// numConsecative =0;
+						// discardPile.insert(discardPile.begin(), playCards[0]);
+						// for(unsigned int i=1; i<playCards.size(); i++)
+						// {
+							// numConsecative++;
+							// discardPile.insert(discardPile.begin(), playCards[i]);
+							// numCards++;
+						// }
+					// }
+					// else{  //Needs check that all are same value or greater than
+						// numConsecative =0;
+						// for(unsigned int i=0; i<playCards.size(); i++)
+						// {
+							// numConsecative++;
+							// discardPile.insert(discardPile.begin(), playCards[i]);
+							// numCards++;
+						// }
+					// }
+				// else{
+					// numConsecative =0;
+					// for(unsigned int i=0; i<playCards.size(); i++)
+					// {
+						// numConsecative++;
+						// discardPile.insert(discardPile.begin(), playCards[i]);
+						// numCards++;
+					// }
+					// killed = false;
+				// }
+			// else
+				// killDiscard();
+		// if(numConsecative >= 4*numDecks) 
+			// killDiscard();
+		// if(discardPile.size() >= 1) killed = false;
+		// else killed = true;
 	}
