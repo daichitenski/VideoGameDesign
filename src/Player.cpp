@@ -221,7 +221,7 @@
 					cout << "Testing full hand\n";
 					last_card = play_sel[0].getCardValue(); //store the last card once before the loop to prevent error
 					cout << "size of loop " << play_sel.size() << endl;
-					for(unsigned int j=play_sel.size()-1; j>=0; --j)
+					for(unsigned int j=play_sel.size()-1; j>0; --j)
 					{
 						this_card = play_sel[j].getCardValue();
 						cout << "Updating this card to " << this_card << " index " << j << endl;
