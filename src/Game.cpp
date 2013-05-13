@@ -246,7 +246,7 @@ string Game::handleInput()
 				{
 					players[turn].db->boardList[2].toggleSelected();
 				}*/
-			}
+			
 			if(event.button.x>doneButton.getXPos() && 
 					event.button.x<doneButton.getXPos() + doneButton.getWidth() && 
 					event.button.y>doneButton.getYPos() && 
@@ -255,7 +255,7 @@ string Game::handleInput()
 				doneButton.clicked();
 			}
 		
-		
+		}
 		else if(event.type == SDL_MOUSEBUTTONUP){
 			if(mouseDown == true){	
 				cout<<"Slider released"<<endl;
