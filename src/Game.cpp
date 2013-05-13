@@ -12,6 +12,7 @@ void Game::setName(string newName)
 
 bool Game::enter(SDL_Surface *newScreen)
 {
+	pickedUp = false;
 	turn = 0;
 	done = false;
 	bigText.init("../fonts/Sintony-Bold.ttf",20);
@@ -56,7 +57,7 @@ string Game::execute()
 	{
 		bg.draw();
 		deck.draw(&cardImages,screen);
-		discardPile.draw(&cardImages, screen);
+		if(pickedUp == false) discardPile.draw(&cardImages, screen);
 		doneButton.draw(screen);
 		menuButton.draw(screen);
 
@@ -157,6 +158,7 @@ string Game::handleInput()
 					cout << "Valid Move \n";
 					discardPile.layCardPhase(playCards);
 					(turn == 0) ? turn = 1: turn = 0;
+					pickedUp = false;
 				} //This doesn't match the function definition in Discard.cpp wtf!?
 				//this line of code doesn't scale to lots of players
 				else
@@ -185,6 +187,7 @@ string Game::handleInput()
 						discardPile.layCardPhase(playCards);
 						cout << "lay card phase passed" << endl;
 						(turn == 0) ? turn = 1: turn = 0;
+						pickedUp = false;
 					} 
 					else
 					{
@@ -209,6 +212,7 @@ string Game::handleInput()
 						cout << "Valid Move \n";
 						discardPile.layCardPhase(playCards);
 						(turn == 0) ? turn = 1: turn = 0;
+						pickedUp = false;
 					} 
 					else
 					{
@@ -271,6 +275,7 @@ string Game::handleInput()
 				discardPile.killDiscard();
 				players[turn].getHand()->unSelectAll();
 				(turn == 0) ? turn = 1: turn = 0;
+				pickedUp = true;
 			}
 
 		}

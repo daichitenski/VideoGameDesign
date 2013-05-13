@@ -26,11 +26,6 @@ void Discard::init(Deck *d){
 			c->selectCard(temp.getValue());
 			c->draw(screen,308,165);
 		}
-		else
-		{
-			c->selectCard(1);
-			c->draw(screen,308,165);
-		}
 	}
 	void Discard::killDiscard(){
 		killed == true; //RM because nothing should be displayed for the pile

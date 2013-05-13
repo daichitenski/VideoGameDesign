@@ -20,7 +20,7 @@ private:
 	bool done;
 	TextImage bigText;
 	TextImage smallText;
-	
+	bool pickedUp;
 	BackgroundImage bg;
 	CardImage cardImages;
 	CardImage smallCardImages;
