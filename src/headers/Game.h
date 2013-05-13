@@ -50,6 +50,7 @@ public:
 	Game();
 	void setName(string newName);
 	bool enter(SDL_Surface *newScreen);
+	int getNumCardsInDeck();
 	string execute();
 	void pause(string exitStateName);
 	void exit(string exitStateName);

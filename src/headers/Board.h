@@ -7,11 +7,11 @@
 class Board // The Board Hand Class
 {
 private:
-	vector<Card> boardList;
 	bool topLayer, main;
 	int numCards;
 
 public:
+	vector<Card> boardList;
 	Board(bool m);
 	void drawFromDeck(Deck *d, bool up);
 	void insert(vector<Card> inCards);

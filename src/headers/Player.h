@@ -15,14 +15,14 @@ class Player{
 	/* I made these pointers for constructor purposes. I couldn't get it to work otherwise.
 	   We might have to be careful about cleaning up the Boards if we start deleting players. */
 
-	Board *upBoard; //Face up Board Hand Section
-	Board *db; //Face down Board Hand section 
 	int maxHand; //Number per hand based on deck
 	int maxBoard; //Number for board cards based on deck
 	bool main; // True if this is player 1
 	int mine;
 
 public:
+	Board *upBoard; //Face up Board Hand Section
+	Board *db; //Face down Board Hand section 
 	void init(Deck &d, bool mainPlayer, int deckNum=1, int myTurn = 0); //I still have to take into consideration the number of players playing
 	void drawHand(CardImage *c, SDL_Surface *screen);
 	void drawBoard(CardImage *c, SDL_Surface *screen,int turn);
@@ -34,6 +34,8 @@ public:
 	int getMaxHand();
 	int getMaxBoard();
 	int getNumCardsInHand();
+	bool upBoardIsEmpty();
+	bool downBoardIsEmpty();
 	/*MY_STUFF*/
 	bool Is_Lowest(vector<Card> &test, int val); //Returns true if the value passed in is the lowest card in the deck
 	bool Is_Last(int val, int pile_card); //Returns true if the value passed into the function is the only valid move the player can make

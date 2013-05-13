@@ -80,6 +80,8 @@
 	int Player::getNumCardsInHand(){
 		return h.getNumCards();
 	}
+	bool Player::upBoardIsEmpty(){return upBoard->isEmpty();}
+	bool Player::downBoardIsEmpty(){return db->isEmpty();}
 	
 	bool Player::Is_Lowest(vector<Card> &test, int val) //if val is the lowest value in the players hand return true
 	{
