@@ -159,24 +159,28 @@
 		int min = 9999;
 		int this_card = -1;
 		vector<Card> player_hand = h.getHand();
-		cout << "Loop 1 size of array: " << test.size() << "initial val " << val << " pile_card " << pile_card << endl;
+		//cout << "Loop 1 size of array: " << test.size() << "initial val " << val << " pile_card " << pile_card << endl;
 		for(int i=test.size()-1; i>=0; --i) //count backwards lows are first save work
 		{
 			this_card = test[i].getCardValue();
 			if((this_card < min && this_card >= pile_card) && (this_card > 2 && this_card != 10)) min = this_card; //Get the lowest (non two) value in the players hand that beats the value passed into it
-			cout << "this_card " << this_card << " comparing with " << pile_card << " min is " << min << endl;
+			//cout << "this_card " << this_card << " comparing with " << pile_card << " min is " << min << endl;
 		}
-			cout << "Loop 2 size of array: " << player_hand.size() << endl;
-			for(int j=player_hand.size()-1; j>=0; --j)
-			{
-				this_card = player_hand[j].getCardValue();
-				if((this_card < min && this_card >= pile_card) && (this_card > 2 && this_card != 10)) min = this_card; //Get the lowest (non two) value in the players hand that beats the value
-				cout << "this_card " << this_card << " comparing with " << pile_card << " min is " << min << endl;
-			}
-			cout << "min: " << min << " val: " << val << endl;
-			if(val == min) return true;
-			return false;
+		//cout << "Loop 2 size of array: " << player_hand.size() << endl;
+		for(int j=player_hand.size()-1; j>=0; --j)
+		{
+			this_card = player_hand[j].getCardValue();
+			if((this_card < min && this_card >= pile_card) && (this_card > 2 && this_card != 10)) min = this_card; //Get the lowest (non two) value in the players hand that beats the value
+			//cout << "this_card " << this_card << " comparing with " << pile_card << " min is " << min << endl;
 		}
+		//cout << "min: " << min << " val: " << val << endl;
+		if(val == min)
+		{
+			cout << val << " is lowest beat of " << pile_card << endl;
+			return true;
+		}
+		return false;
+	}
 			
 		bool Player::Is_Last(int val, int pile_card) //return true if the player can make no other moves then the value passed into the function
 		{
@@ -299,16 +303,16 @@
 					cout << this_card << " < " << pile_card << endl;
 					return false;
 				}
+				else if(j > 0 && this_card != last_card) //Playing 2 or more cards of different values is not a valid move
+				{
+					cout << this_card << " != " << last_card << endl;
+					return false;
+				}
 				else if(this_card > pile_card) 
 				{
 					if(!Is_Lowest_Beat(play_sel, pile_card, this_card)) return false;
 					cout << "returned true \n";
 					//is_valid = true; otherwise continue testing
-				}
-				else if(j > 0 && this_card != last_card) //Playing 2 or more cards of different values is not a valid move
-				{
-					cout << this_card << " != " << last_card << endl;
-					return false;
 				}
 			last_card = play_sel[j].getCardValue(); //update last card for next iteration of loop
 			}
