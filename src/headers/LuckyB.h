@@ -1,5 +1,5 @@
 #ifndef LUCKYB_H
-#define LUCJYB_H
+#define LUCKYB_H
 
 #include "Game.h"
 #include "Card.h"
@@ -10,6 +10,6 @@
 
 StateBasedGame *luckyB;
 
-int main(int argc, char** argv);
+//int main(int argc, char** argv); putting main in a header is JUST WRONG
 
 #endif

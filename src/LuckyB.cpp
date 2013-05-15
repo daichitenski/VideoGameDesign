@@ -1,8 +1,10 @@
 #include "headers/LuckyB.h"
 
-int main(int argc, char** argv){ //RM removed arguements since we aren't passing any to get rid of compiler warning
+int main(int argc, char** argv){ 
 		MainMenu *mainState = new MainMenu();
 		Game *gameState = new Game();
+		
+		srand (time(NULL)); //seed srand timer
 		
 		luckyB = new StateBasedGame(mainState);
 		luckyB->addState(gameState);

@@ -1,4 +1,4 @@
-#include "headers/sound.h"
+#include "headers/Sound.h"
 
 bool sound::init_audio()
 {
@@ -26,7 +26,7 @@ bool sound::load_track(char* filepath)
 
 bool sound::play_fx()
 {
-	if(Mix_PlayChannel(-1, fx, 1) == -1)
+	if(Mix_PlayChannel(-1, fx, 0) == -1)
 	{
 		cerr << "Error playing audio effect\n";
 		return false;
@@ -51,4 +51,11 @@ bool sound::fade_fx(int channel)
 		return false;
 	}
 	return true;
+}
+
+void sound::clean_up()
+{
+	Mix_HaltMusic();
+	if(track != NULL) Mix_FreeMusic(track);
+	if(fx != NULL) Mix_FreeChunk(fx);
 }

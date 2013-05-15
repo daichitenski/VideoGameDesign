@@ -20,6 +20,7 @@
 		bool play_fx();
 		bool play_track();
 		bool fade_fx(int channel);
+		void clean_up();
 	};
 
 #endif

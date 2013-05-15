@@ -1,19 +1,18 @@
 #ifndef INCLUDES_H
 #define INCLUDES_H
 
+	#include <algorithm>
+	#include <deque>
+	#include <iostream>	
 	#include "SDL/SDL.h"
 	#include "SDL/SDL_ttf.h"
 	#include "SDL/SDL_mixer.h"
-	#include <iostream>
 	#include <sstream>
+	#include <stdlib.h> //used for rand()
 	#include <string>
-	#include <deque>
 	#include <time.h>
 	#include <vector>
-	#include <algorithm>
-	
-	using namespace std;
-	
 
+	using namespace std;
 	
 #endif
