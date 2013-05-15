@@ -42,6 +42,7 @@ public:
 	void drawFromDeck(Deck *d);
 	int getHandViewMin();
 	Hand* getHand();
+	bool isHandEmpty();
 	int getMaxHand();
 	int getMaxBoard();
 	int getNumCardsInHand();
@@ -54,6 +55,7 @@ public:
 	bool Validate_Ten(vector<Card> &test); //Return true if a single or multiple 10's are passed into the funcion also play a sound
 	bool isValid_Move(vector<Card> &player_sel, int pile_card,bool playFromHand); //returns true if the hand passed in can be played 
 	void translateHandView(int offset);
+	vector<Card> getUpBoard();
 };
 
 #endif

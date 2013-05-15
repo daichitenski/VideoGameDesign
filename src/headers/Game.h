@@ -55,6 +55,7 @@ public:
 	void pause(string exitStateName);
 	void exit(string exitStateName);
 	string handleInput();
+	bool allowToPickUp(Player p);
 };
 
 #endif

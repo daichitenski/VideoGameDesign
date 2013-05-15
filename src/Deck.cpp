@@ -66,3 +66,7 @@
 	int Deck::getNumDecks(){
 		return numDecks;
 	}
+	bool Deck::isEmpty()
+	{
+		return deckList.empty();
+	}

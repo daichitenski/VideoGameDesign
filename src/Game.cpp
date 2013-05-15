@@ -271,11 +271,14 @@ string Game::handleInput()
 					event.button.y<doneButton.getYPos() + doneButton.getHeight())
 			{
 				doneButton.released();
-				players[turn].getHand()->pickUpPile(discardPile.discardPile);
-				discardPile.killDiscard();
-				players[turn].getHand()->unSelectAll();
-				(turn == 0) ? turn = 1: turn = 0;
-				pickedUp = true;
+				if(allowToPickUp(players[turn]) == true)
+				{
+					players[turn].getHand()->pickUpPile(discardPile.discardPile);
+					discardPile.killDiscard();
+					players[turn].getHand()->unSelectAll();
+					(turn == 0) ? turn = 1: turn = 0;
+					pickedUp = true;
+				}
 			}
 
 		}
@@ -290,4 +293,37 @@ string Game::handleInput()
 		}
 	}
 	return "";
+}
+bool Game::allowToPickUp(Player p) // False for can't pickup and true to allow
+{
+	if(discardPile.discardPile.empty() == false)
+	{
+		if(p.isHandEmpty() == true)
+			if(deck.isEmpty() == true)
+				if(p.upBoardIsEmpty() == true)
+					if(p.downBoardIsEmpty() == true) return false;
+					else return true;
+				else
+				{
+					vector<Card> tempBoard = p.getUpBoard();
+					for(int i=0; i < tempBoard.size(); i++)
+						if(tempBoard[i].getValue() == 1 || tempBoard[i].getValue() == 9 || tempBoard[i].getValue() == 0) return false;
+						else if(tempBoard[i].getValue() >= discardPile.getTopCardValue()) return false;
+					return true;
+				}
+			else return false;
+		else
+		{
+			Hand* tempHand = p.getHand();
+			for(int i=0; i< tempHand->handList.size(); i++)
+				if(tempHand->handList[i].getValue() == 1 || tempHand->handList[i].getValue() == 9) return false;
+				else if(tempHand->handList[i].getValue() >= discardPile.getTopCardValue()) return false;
+				else if(tempHand->handList[i].getValue() == 0) return false;
+			if(deck.isEmpty() == true) return true;
+			else
+				if(tempHand->handList.size() < p.getMaxHand()) return false;
+				else return true;
+		}
+	}
+	else return false;
 }

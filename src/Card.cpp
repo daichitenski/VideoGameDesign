@@ -21,7 +21,7 @@
 	}
 	int Card::getCardValue() const //return the numerical value of a playing card
 	{
-		if(value == 0) return 14;
+		if(value == 0) return 15;
 		return value + 1;
 	}
 	bool Card::isSpecial(){

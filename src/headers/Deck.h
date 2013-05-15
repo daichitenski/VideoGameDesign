@@ -16,6 +16,7 @@ public:
 	Card drawCard();
 	int getNumCards();
 	int getNumDecks();
+	bool isEmpty();
 };
 
 #endif

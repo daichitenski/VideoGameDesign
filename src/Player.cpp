@@ -108,6 +108,10 @@
 	Hand* Player::getHand(){
 		return &h;
 	}
+	bool Player::isHandEmpty()
+	{
+		return h.handList.empty();
+	}
 	int Player::getMaxHand(){
 		return maxHand;
 	}
@@ -126,7 +130,10 @@
 	
 	bool Player::upBoardIsEmpty(){return upBoard->isEmpty();}
 	bool Player::downBoardIsEmpty(){return db->isEmpty();}
-	
+	vector<Card> Player::getUpBoard()
+	{
+		return upBoard->boardList;
+	}
 	bool Player::Is_Lowest(vector<Card> &test, int val) //returns true if the card passed in is the lowest (non special) in the players hand
 	{
 		cout << "Is_Lowest\n";
